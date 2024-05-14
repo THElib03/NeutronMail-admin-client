@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+
+<TableView fx:id="table" onMouseClicked="#updateParent" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.martincorp.Interface.EmpTableController">
+   <columns>
+      <TableColumn fx:id="idCol" maxWidth="120.0" minWidth="30.0" prefWidth="60.0" text="ID" />
+      <TableColumn fx:id="onlineCol" maxWidth="120.0" minWidth="30.0" prefWidth="60.0" text="En Línea" />
+      <TableColumn fx:id="nameCol" maxWidth="240.0" minWidth="80.0" prefWidth="160.0" text="Nombre y Apellidos" />
+      <TableColumn fx:id="aliasCol" maxWidth="180.0" minWidth="80.0" prefWidth="120.0" text="Alias" />
+      <TableColumn fx:id="mailCol" maxWidth="340.0" minWidth="150.0" prefWidth="200.0" text="Correo Electrónico" />
+      <TableColumn fx:id="startDateCol" maxWidth="250.0" minWidth="125.0" prefWidth="175.0" text="Fecha de Contratación" />
+      <TableColumn fx:id="endDateCol" maxWidth="250.0" minWidth="125.0" prefWidth="175.0" text="Fin del Contrato" />
+   </columns>
+   <contextMenu>
+      <ContextMenu>
+         <items>
+            <MenuItem fx:id="contextAdd" mnemonicParsing="false" onAction="#contextAdd" text="Nuevo" />
+            <MenuItem fx:id="contextEdit" mnemonicParsing="false" onAction="#contextEdit" text="Modificar" />
+            <MenuItem fx:id="contextDelete" mnemonicParsing="false" onAction="#contextDelete" text="Eliminar" />
+         </items>
+      </ContextMenu>
+   </contextMenu>
+</TableView>
