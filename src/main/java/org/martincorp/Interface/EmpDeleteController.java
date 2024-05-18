@@ -1,5 +1,8 @@
 package org.martincorp.Interface;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 
 import org.martincorp.Database.DBActions;
@@ -68,11 +71,21 @@ public class EmpDeleteController {
             aliasText.setText(emp.getAlias());
             emailText.setText(emp.getMail());
             sDateText.setText(emp.getStartDate());
-            eDateText.setText(emp.getEndDate() != "" ? emp.getEndDate() : "Indefinido");
+            eDateText.setText(emp.getEndDate() != null ? emp.getEndDate() : "Indefinido");
+
+            if(emp.getEndDate() != null){
+                if(LocalDate.now().compareTo(LocalDate.parse(emp.getEndDate())) > 0){
+                    dateInfoText.setText("El contrato de este empleado ha vencido.");
+                }
+                else{
+                    dateInfoText.setText("Todavía no ha concluido el contrato de este empleado.");
+                }
+            }
+            else{
+                dateInfoText.setText("Todavía no ha concluido el contrato de este empleado.");
+            }
         }
     }
-
-
 
     public void setStage(Stage w){
         this.window = w;

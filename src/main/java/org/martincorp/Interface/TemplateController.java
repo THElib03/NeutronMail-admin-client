@@ -307,7 +307,7 @@ public class TemplateController{
 
     public static void loadEmpEdit(){
         try{
-            FXMLLoader edLoader = new FXMLLoader(GUI.class.getResource("/Fxml/empAdd.fxml"));
+            FXMLLoader edLoader = new FXMLLoader(GUI.class.getResource("/Fxml/empEdit.fxml"));
             Parent edRoot = edLoader.load();
             FXMLLoader schLoader = new FXMLLoader(GUI.class.getResource("/Fxml/empSearch.fxml"));
             Parent schRoot = schLoader.load();

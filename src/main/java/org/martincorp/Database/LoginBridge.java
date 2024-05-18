@@ -25,7 +25,7 @@ public class LoginBridge {
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection
-                ("jdbc:mysql://localhost/" + DBName, "corp_pass", "");
+                ("jdbc:mysql://localhost/" + DBName, "corp_pass", "4PaSSworDSAreenOUGH?");
 
             querier = conn.createStatement();
             querier.execute("USE " + DBName);

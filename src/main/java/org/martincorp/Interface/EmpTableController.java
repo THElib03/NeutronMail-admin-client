@@ -2,7 +2,6 @@ package org.martincorp.Interface;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 import org.martincorp.Database.DBActions;
 import org.martincorp.Model.Employee;
@@ -13,14 +12,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Orientation;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
-import javafx.scene.control.ScrollBar;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
@@ -115,9 +111,9 @@ public class EmpTableController {
                 case 0:
                     return;
                 case 1:
-                    ObservableList<TablePosition> selectionList = table.getSelectionModel().getSelectedCells();
+                    ObservableList<TablePosition> selectionListDelete = table.getSelectionModel().getSelectedCells();
                 
-                    if(selectionList.size() > 0){
+                    if(selectionListDelete.size() > 0){
                         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/empDelete.fxml"));
                         Parent root = loader.load();
 
@@ -127,17 +123,30 @@ public class EmpTableController {
                         Platform.runLater( () -> TemplateController.cleanLeft());
                         Platform.runLater( () -> TemplateController.setLeft(root));
 
-                        TablePosition selection = selectionList.get(0);
-                        int selectionRow = selection.getRow();
-                        dEmpCont.extSetup(table.getItems().get(selectionRow));
+                        dEmpCont.extSetup(table.getItems().get(selectionListDelete.get(0).getRow()));
                     }
+
                     break;
                 case 2:
-                    contextEdit();
+                    ObservableList<TablePosition> selectionListEdit = table.getSelectionModel().getSelectedCells();
+
+                    if(selectionListEdit.size() > 0){
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/empEdit.fxml"));
+                        Parent root = loader.load();
+
+                        EmpEditController eEmpCont = loader.getController();
+                        eEmpCont.setStage(window);
+
+                        Platform.runLater( () -> TemplateController.cleanLeft());
+                        Platform.runLater( () -> TemplateController.setLeft(root));
+
+                        eEmpCont.extSetup(table.getItems().get(selectionListEdit.get(0).getRow()));
+                    }
+
                     break;
 
                 default:
-                    GUI.launchMessage(2, "Error de interfaz", "La tabla de búsqueda que ha clicado no se encuentra activada.t");
+                    GUI.launchMessage(2, "Error de interfaz", "La tabla de búsqueda que ha clicado no se encuentra activada.");
                     break;
             }
         }

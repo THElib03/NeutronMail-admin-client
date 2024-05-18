@@ -429,7 +429,7 @@ public class DBActions {
             ResultSet res = searchSta.executeQuery();
                     
             while (res.next()) {
-                emps.add(new Employee(res.getInt(1), res.getBoolean(10) ? Online.ONLINE : Online.OFFLINE, res.getString(2) + " " + res.getString(3), res.getString(4), res.getString(5), res.getString(6), res.getString(7)));
+                emps.add(new Employee(res.getInt(1), res.getBoolean(9) ? Online.ONLINE : Online.OFFLINE, res.getString(2) + " " + res.getString(3), res.getString(4), res.getString(5), res.getString(6), res.getString(7)));
             }
         }
         catch(SQLException sqle){
