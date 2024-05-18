@@ -1,6 +1,6 @@
 # NeutronMail
 #### NeutronMail es mi Proyecto de Final de Grado del CGFS de Desarrollo de Aplicaciones Multiplataforma. NeutronMail es un entorno de mensajería orientado a empresas y corporaciones, organizaciones o grandes grupos con un enfoque a seguridad y privacidad. Se trata de un proyecto sencillo que depende principalmente de las librerías integradas de Java 17 y su versión correspondiente de JavaFX para confeccionar la interfaz.   
-#### Este repositorio abarca el programa para el administrador de organizaciones/compañias, cuyas posibilidades son la creación y gestión de usuarios y grupos. Los otros programas de este entorno son los repositorios de [super-admin](https://github.com/THElib03/NeutronMail-super-admin) y [message-client](#).
+#### Este repositorio abarca el programa para el administrador de organizaciones/compañias, cuyas posibilidades son la creación y gestión de usuarios y grupos de la organización a la que pertenece. Los otros programas de este entorno son los repositorios de [super-admin](https://github.com/THElib03/NeutronMail-super-admin) y [message-client](#).
 
 ## Contenidos
  - [Instalación](#Instalación)
