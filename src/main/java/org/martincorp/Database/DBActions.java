@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Random;
 
 import javax.sql.rowset.serial.SerialBlob;
-import javax.swing.text.html.HTMLDocument.HTMLReader.PreAction;
 
 import org.martincorp.Codec.Encrypt;
 import org.martincorp.Interface.*;
@@ -18,6 +17,10 @@ import org.martincorp.Model.Employee;
 import org.martincorp.Model.Group;
 import org.martincorp.Model.Online;
 
+/**
+ * @author <a href="https://github.com/THElib03">Martín Marín</a>
+ * @version 1.0, 06/21/23
+ */
 public class DBActions {
     //Variables:
     private MainBridge mBridge;
@@ -32,6 +35,7 @@ public class DBActions {
     private final String EMP_ADD = "INSERT INTO employee VALUES(NULL, ?, ?, ?, ?, ?, ?)";
     private final String EMP_ADD_PASS;
     private final String EMP_DROP = "UPDATE employee SET emp_pass = '' WHERE emp_id = ?; ";
+    private final String EMP_EDIT = "UPDATE employee SET emp_fname = ?, emp_lname = ?, emp_sDate = ?, emp_eDate = ?, emp_alias = ?, emp_email = ? WHERE emp_id = ?";
     private final String LAST_EMP = "SELECT MAX(emp_id) FROM employee";
     private final String EMP_NUMBER = "SELECT emp_alias FROM employee WHERE emp_alias LIKE ?";
     private final String EMP_SEARCH_FNAME = "SELECT * FROM employee JOIN `active` ON (employee.emp_id=`active`.act_emp) WHERE emp_fname LIKE ?";
@@ -311,20 +315,61 @@ public class DBActions {
             dropSta2 = mBridge.conn.prepareStatement(CERT_DROP);
             dropSta3 = mBridge.conn.prepareStatement(ACTI_DROP);
             //DONE: ALSO DELETE IN THIS METHOD THE ASSOCIATED CERTIFICATE AND ACTIVE ROW. NO NEED FOR EXTRA METHODS FOR 3 THINGS SO LINKED
-              //Not needed in the end, mySQL deletes active automatically and cert shouldn't be deleted
             dropSta.setInt(1, id);
             dropSta2.setInt(1, id);
             dropSta3.setInt(1, id);
 
-            dropSta.execute();
-            dropSta2.execute();
-            dropSta3.execute();
-
-            return true;
+            if(dropSta.execute() && dropSta2.execute() && dropSta3.execute()){
+                GUI.launchMessage(3, "Operación completada", "Se ha eliminado con éxito al empleado seleccionado.");
+                return true;
+            }
+            else{
+                GUI.launchMessage(2, "Operación fallida", "No se ha podido completar la operación solicitada,\nes posible que no se haya encontrado el empleado seleccionado.");
+                return false;
+            }
         }
         catch(SQLException sqle){
             sqle.printStackTrace();
-            GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error al intentar introducir datos.\n\n" + sqle.getMessage());
+            GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error al intentar eliminar datos.\n\n" + sqle.getMessage());
+            mBridge.checkConnection(false);
+
+            return false;
+        }
+    }
+
+    /**
+     * Modifies the indicated employee row.
+     * @since 1.0
+     * @param id id of the employee to be modified
+     * @param newEmp updated employee object to push into the database
+     * @return true if the edit is successful, false if any problem arises
+     */
+    public boolean editEmp(int id, Employee newEmp){
+        PreparedStatement editSta;
+
+        try{
+            editSta = mBridge.conn.prepareStatement(EMP_EDIT);
+
+            editSta.setString(1, newEmp.getName().split(" ", 2)[0]);
+            editSta.setString(2, newEmp.getName().split(" ", 2)[1]);
+            editSta.setDate(3, Date.valueOf(LocalDate.parse(newEmp.getStartDate())));
+            editSta.setDate(4, Date.valueOf(LocalDate.parse(newEmp.getStartDate())));
+            editSta.setString(5, newEmp.getAlias());
+            editSta.setString(6, newEmp.getMail());
+            editSta.setInt(7, id);
+
+            if(editSta.executeUpdate() == 1){
+                GUI.launchMessage(3, "Operación completada", "Se ha modifiado con éxito al empleado seleccionado.");
+                return true;
+            }
+            else{
+                GUI.launchMessage(2, "Operación fallida", "No se ha podido completar la operación solicitada,\nes posible que no se haya encontrado el empleado seleccionado.");
+                return false;
+            }
+        }
+        catch(SQLException sqle){
+            sqle.printStackTrace();
+            GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error al intentar modificar datos.\n\n" + sqle.getMessage());
             mBridge.checkConnection(false);
 
             return false;

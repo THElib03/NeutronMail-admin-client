@@ -59,7 +59,6 @@ public class EmpDeleteController {
     //Methods:
     @FXML private void delete(){
         if(db.dropEmp(activeId)){
-            GUI.launchMessage(3, "Operación completada", "Se ha eliminado con éxito al empleado seleccionado.");
             TemplateController.loadEmpTable();
         }
     }

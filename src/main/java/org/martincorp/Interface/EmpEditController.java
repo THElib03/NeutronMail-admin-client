@@ -5,10 +5,11 @@ import java.time.LocalDate;
 import org.martincorp.Codec.Encrypt;
 import org.martincorp.Database.DBActions;
 import org.martincorp.Model.Employee;
+import org.martincorp.Model.Online;
 
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -20,8 +21,8 @@ public class EmpEditController {
     @FXML TextField nameText;
     @FXML TextField aliasText;
     @FXML TextField emailText;
-    @FXML TextField sDateText;
-    @FXML TextField eDateText;
+    @FXML DatePicker sDatePick;
+    @FXML DatePicker eDatePick;
     @FXML Label dateInfoText;
     @FXML Button cancelBut;
     @FXML Button saveBut;
@@ -56,7 +57,17 @@ public class EmpEditController {
 
     //Methods:
     @FXML private void edit(){
-        System.out.println("po");
+        if(nameText.getText().trim() == "" || aliasText.getText().trim() == "" || emailText.getText().trim() == "" || sDatePick.getValue() == null){
+            GUI.launchMessage(5, "Advertencia", "Uno de los campos requeridos está vacío");
+        }
+        else{
+            boolean eDate = false;
+            if(eDatePick.getValue() != null){
+                eDate = true;
+            }
+
+            db.editEmp(activeId, new Employee(activeId, Online.OFFLINE, nameText.getText(), sDatePick.getValue().toString(), eDate ? eDatePick.getValue().toString() : null, aliasText.getText(), emailText.getText()));
+        }
     }
 
     public void extSetup(Employee emp){
@@ -65,8 +76,13 @@ public class EmpEditController {
             nameText.setText(emp.getName());
             aliasText.setText(emp.getAlias());
             emailText.setText(emp.getMail());
-            sDateText.setText(emp.getStartDate());
-            eDateText.setText(emp.getEndDate() != null ? emp.getEndDate() : "Indefinido");
+            sDatePick.setValue(LocalDate.parse(emp.getStartDate()));
+            if(emp.getEndDate() != null){
+                eDatePick.setValue(LocalDate.parse(emp.getEndDate()));
+            }
+            else{
+                eDatePick.setPromptText("Indefinido");
+            }
 
             if(emp.getEndDate() != null){
                 if(LocalDate.now().compareTo(LocalDate.parse(emp.getEndDate())) > 0){

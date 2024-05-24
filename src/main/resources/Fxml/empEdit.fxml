@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -82,14 +83,11 @@
             <Insets bottom="135.0" />
          </GridPane.margin>
       </Label>
-      <TextField fx:id="sDateText" GridPane.rowIndex="1">
-         <font>
-            <Font name="Segoe UI" size="14.0" />
-         </font>
+      <DatePicker fx:id="sDatePick" maxWidth="1.7976931348623157E308" prefHeight="28.0" GridPane.rowIndex="1">
          <GridPane.margin>
             <Insets bottom="45.0" left="63.0" right="63.0" />
          </GridPane.margin>
-      </TextField>
+      </DatePicker>
       <Label text="Fin de contrato" GridPane.halignment="CENTER" GridPane.rowIndex="1">
          <font>
             <Font name="Segoe UI" size="14.0" />
@@ -98,20 +96,17 @@
             <Insets top="45.0" />
          </GridPane.margin>
       </Label>
-      <TextField fx:id="eDateText" GridPane.rowIndex="1">
-         <font>
-            <Font name="Segoe UI" size="14.0" />
-         </font>
+      <DatePicker fx:id="eDatePick" maxWidth="1.7976931348623157E308" prefHeight="28.0" GridPane.rowIndex="1">
          <GridPane.margin>
             <Insets left="63.0" right="63.0" top="135.0" />
          </GridPane.margin>
-      </TextField>
+      </DatePicker>
       <Label fx:id="dateInfoText" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
          <font>
             <Font name="Segoe UI" size="14.0" />
          </font>
          <GridPane.margin>
-            <Insets left="20.0" right="20.0" />
+            <Insets left="40.0" right="40.0" />
          </GridPane.margin>
       </Label>
       <Button fx:id="cancelBut" mnemonicParsing="false" onKeyPressed="#cancelEnter" onMouseClicked="#cancelClick" prefWidth="85.0" text="Cancelar" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
@@ -119,15 +114,15 @@
             <Font name="Segoe UI" size="14.0" />
          </font>
          <GridPane.margin>
-            <Insets right="45.0" />
+            <Insets bottom="20.0" right="45.0" />
          </GridPane.margin>
       </Button>
-      <Button fx:id="deleteBut" mnemonicParsing="false" onKeyPressed="#editEnter" onMouseClicked="#edit" prefWidth="85.0" text="Eliminar" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="2">
+      <Button fx:id="deleteBut" mnemonicParsing="false" onKeyPressed="#editEnter" onMouseClicked="#edit" prefWidth="85.0" text="Modificar" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="2">
          <font>
             <Font name="Segoe UI" size="14.0" />
          </font>
          <GridPane.margin>
-            <Insets left="45.0" />
+            <Insets bottom="20.0" left="45.0" />
          </GridPane.margin>
       </Button>
    </children>
