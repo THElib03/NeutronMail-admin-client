@@ -8,13 +8,14 @@ import javafx.beans.property.StringProperty;
 public class Group {
     //Variables:
     private IntegerProperty Id;
-    private StringProperty name, owner;
+    private StringProperty name, owner, creationDate;
 
     //Builder:
-    public Group(int i, String n, String o){
+    public Group(int i, String n, String o, String d){
         setId(i);
         setName(n);
         setOwner(o);
+        setCreationDate(d);
     }
 
     //Methods:
@@ -36,6 +37,22 @@ public class Group {
         return IdProperty().getValue();
     }
 
+    public StringProperty nameProperty(){
+        if(name == null){
+            name = new SimpleStringProperty(this, "name");
+        }
+
+        return name;
+    }
+
+    public void setName(String n){
+        nameProperty().set(n);
+    }
+
+    public String getName(){
+        return nameProperty().getValue();
+    }
+
     public StringProperty ownerProperty(){
         if(owner == null){
             owner = new SimpleStringProperty(this, "owner");
@@ -52,19 +69,19 @@ public class Group {
         return ownerProperty().getValue();
     }
 
-    public StringProperty nameProperty(){
-        if(name == null){
-            name = new SimpleStringProperty(this, "name");
+    public StringProperty creationDateProperty(){
+        if(creationDate == null){
+            creationDate = new SimpleStringProperty(this, "creationDate");
         }
 
-        return name;
+        return creationDate;
     }
 
-    public void setName(String n){
-        nameProperty().set(n);
+    public void setCreationDate(String d){
+        creationDateProperty().set(d);
     }
 
-    public String getName(){
-        return nameProperty().getValue();
+    public String getCreationDate(){
+        return creationDateProperty().getValue();
     }
 }

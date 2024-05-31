@@ -1,7 +1,11 @@
 package org.martincorp.Database;
 
 import java.nio.charset.StandardCharsets;
-import java.sql.*;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,7 +15,7 @@ import java.util.Random;
 import javax.sql.rowset.serial.SerialBlob;
 
 import org.martincorp.Codec.Encrypt;
-import org.martincorp.Interface.*;
+import org.martincorp.Interface.GUI;
 import org.martincorp.Model.Certificate;
 import org.martincorp.Model.Employee;
 import org.martincorp.Model.Group;
@@ -62,10 +66,18 @@ public class DBActions {
     private final String GEN_CERT_COUNT = "SELECT COUNT(*) FROM certificate WHERE cert_public_key NOT IN ('empty')";
     private final String GEN_CERT_CHK_EMP = "SELECT COUNT(*) FROM certificate WHERE cert_emp=? AND cert_public_key NOT IN ('empty')";
     private final String GEN_CERT_CHK_GRP = "SELECT COUNT(*) FROM certificate WHERE cert_group=? AND cert_public_key NOT IN ('empty')";
-    private final String GROUP = "SELECT * FROM publicgroup";
-    private final String GROUP_BY_ID = "SELECT * FROM publicgroup WHERE grp_id = ?";
+    private final String GROUP_RAW = "SELECT * FROM publicgroup";
+    private final String GROUP_SECURE = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id)";
+    private final String GROUP_BY_ID = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE grp_id = ?";
     private final String GROUP_COUNT = "SELECT COUNT(*) FROM publicgroup";
     private final String GROUP_EMPS = "SELECT COUNT(*) FROM groupuser";
+    private final String GROUP_SEARCH_NAME = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE grp_name LIKE ?";
+    private final String GROUP_SEARCH_OWNER = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname), grp_creationDate AS owner_name FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE CONCAT(emp_fname, ' ', emp_lname) LIKE ?";
+    private final String GROUP_SEARCH_DATE_FULL = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE grp_creationDate LIKE ?";
+    private final String GROUP_SEARCH_DATE_YEAR = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE YEAR(grp_creationDate) = ?";
+    private final String GROUP_SEARCH_DATE_MONTH = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE MONTH(grp_creationDate) = ?";
+    private final String GROUP_SEARCH_DATE_DDMM = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE DAY(grp_creationDate) = ? AND MONTH(grp_creationDate) = ?";
+    private final String GROUP_SEARCH_DATE_MMYY = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE MONTH(grp_creationDate) = ? AND YEAR(grp_creationDate) = ?";
 
     //Builder:
     public DBActions(){
@@ -209,6 +221,7 @@ public class DBActions {
 
         try{
             ResultSet res = mBridge.querier.executeQuery(EMPLOYEE);
+            res.next();
 
             while(res.next()){
                 emps.add(
@@ -466,6 +479,7 @@ public class DBActions {
                     searchSta = mBridge.conn.prepareStatement(EMP_SEARCH_MAIL);
                     break;
                 default:
+                    GUI.launchMessage(2, "Error interno", "No se ha podido establecer la categoría de búsqueda.");
                     emps.add(new Employee(0, Online.OFFLINE, "No se ha encontrado", "", "", "ningún empleado", ""));
                     return emps;
             }
@@ -473,9 +487,13 @@ public class DBActions {
             searchSta.setString(1, "%" + text + "%");
             ResultSet res = searchSta.executeQuery();
                     
-            while (res.next()) {
-                emps.add(new Employee(res.getInt(1), res.getBoolean(9) ? Online.ONLINE : Online.OFFLINE, res.getString(2) + " " + res.getString(3), res.getString(4), res.getString(5), res.getString(6), res.getString(7)));
+            while (res.next()){
+                if(res.getInt(1) != 1){
+                    emps.add(new Employee(res.getInt(1), res.getBoolean(9) ? Online.ONLINE : Online.OFFLINE, res.getString(2) + " " + res.getString(3), res.getString(4), res.getString(5), res.getString(6), res.getString(7)));
+                }
             }
+
+            return emps;
         }
         catch(SQLException sqle){
             sqle.printStackTrace();
@@ -484,12 +502,6 @@ public class DBActions {
             emps.add(new Employee(0, Online.OFFLINE, "No se ha encontrado", "", "", "ningún empleado", ""));
             return emps;
         }
-        
-        if(emps.size() == 0){
-            emps.add(new Employee(0, Online.OFFLINE, "No se ha encontrado", "", "", "ningún empleado", ""));
-        }
-        
-        return emps;
     }
 
     public List<Employee> searchEmpDateFull(int range, LocalDate date){
@@ -506,6 +518,7 @@ public class DBActions {
                     break;
             
                 default:
+                    GUI.launchMessage(2, "Error interno", "No se ha podido establecer la categoría de búsqueda.");
                     emps.add(new Employee(0, Online.OFFLINE, "No se ha encontrado", "", "", "ningún empleado", ""));
                     return emps;
             }
@@ -513,9 +526,13 @@ public class DBActions {
             searchSta.setString(1, date.toString() + "%");
             ResultSet res = searchSta.executeQuery();
             
-            while (res.next()) {
-                emps.add(new Employee(res.getInt(1), res.getBoolean(10) ? Online.ONLINE : Online.OFFLINE, res.getString(2) + " " + res.getString(3), res.getString(4), res.getString(5), res.getString(6), res.getString(7)));
+            while (res.next()){
+                if(res.getInt(1) != 1){
+                    emps.add(new Employee(res.getInt(1), res.getBoolean(9) ? Online.ONLINE : Online.OFFLINE, res.getString(2) + " " + res.getString(3), res.getString(4), res.getString(5), res.getString(6), res.getString(7)));
+                }
             }
+
+            return emps;
         }
         catch(SQLException sqle){
             sqle.printStackTrace();
@@ -524,12 +541,6 @@ public class DBActions {
             emps.add(new Employee(0, Online.OFFLINE, "No se ha encontrado", "", "", "ningún empleado", ""));
             return emps;
         }
-
-        if(emps.size() == 0){
-            emps.add(new Employee(0, Online.OFFLINE, "No se ha encontrado", "", "", "ningún empleado", ""));
-        }
-
-        return emps;
     }
 
     public List<Employee> searchEmpDateSingle(int range, int date){
@@ -552,6 +563,7 @@ public class DBActions {
                     break;
             
                 default:
+                    GUI.launchMessage(2, "Error interno", "No se ha podido establecer la categoría de búsqueda.");
                     emps.add(new Employee(0, Online.OFFLINE, "No se ha encontrado", "", "", "ningún empleado", ""));
                     return emps;
             }
@@ -559,9 +571,13 @@ public class DBActions {
             searchSta.setInt(1, date);
             ResultSet res = searchSta.executeQuery();
             
-            while (res.next()) {
-                emps.add(new Employee(res.getInt(1), res.getBoolean(10) ? Online.ONLINE : Online.OFFLINE, res.getString(2) + " " + res.getString(3), res.getString(4), res.getString(5), res.getString(6), res.getString(7)));
+            while (res.next()){
+                if(res.getInt(1) != 1){
+                    emps.add(new Employee(res.getInt(1), res.getBoolean(9) ? Online.ONLINE : Online.OFFLINE, res.getString(2) + " " + res.getString(3), res.getString(4), res.getString(5), res.getString(6), res.getString(7)));
+                }
             }
+
+            return emps;
         }
         catch(SQLException sqle){
             sqle.printStackTrace();
@@ -570,12 +586,6 @@ public class DBActions {
             emps.add(new Employee(0, Online.OFFLINE, "No se ha encontrado", "", "", "ningún empleado", ""));
             return emps;
         }
-
-        if(emps.size() == 0){
-            emps.add(new Employee(0, Online.OFFLINE, "No se ha encontrado", "", "", "ningún empleado", ""));
-        }
-
-        return emps;
     }
 
     public List<Employee> searchEmpDateDouble(int range, int date1, int date2){
@@ -598,6 +608,7 @@ public class DBActions {
                     break;
             
                 default:
+                    GUI.launchMessage(2, "Error interno", "No se ha podido establecer la categoría de búsqueda.");
                     emps.add(new Employee(0, Online.OFFLINE, "No se ha encontrado", "", "", "ningún empleado", ""));
                     return emps;
             }
@@ -606,9 +617,13 @@ public class DBActions {
             searchSta.setInt(2, date2);
             ResultSet res = searchSta.executeQuery();
             
-            while (res.next()) {
-                emps.add(new Employee(res.getInt(1), res.getBoolean(10) ? Online.ONLINE : Online.OFFLINE, res.getString(2) + " " + res.getString(3), res.getString(4), res.getString(5), res.getString(6), res.getString(7)));
+            while (res.next()){
+                if(res.getInt(1) != 1){
+                    emps.add(new Employee(res.getInt(1), res.getBoolean(9) ? Online.ONLINE : Online.OFFLINE, res.getString(2) + " " + res.getString(3), res.getString(4), res.getString(5), res.getString(6), res.getString(7)));
+                }
             }
+
+            return emps;
         }
         catch(SQLException sqle){
             sqle.printStackTrace();
@@ -617,12 +632,6 @@ public class DBActions {
             emps.add(new Employee(0, Online.OFFLINE, "No se ha encontrado", "", "", "ningún empleado", ""));
             return emps;
         }
-
-        if(emps.size() == 0){
-            emps.add(new Employee(0, Online.OFFLINE, "No se ha encontrado", "", "", "ningún empleado", ""));
-        }
-
-        return emps;
     }
 
     public int getActiveEmp(){
@@ -661,7 +670,7 @@ public class DBActions {
         }
         catch(SQLException sqle){
             sqle.printStackTrace();
-            GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error al intentar cargar datos.\n\n" + sqle.getMessage());
+            GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error al intentar crear datos.\n\n" + sqle.getMessage());
             mBridge.checkConnection(false);
             return false;
         }
@@ -772,10 +781,11 @@ public class DBActions {
         List<Group> groups = new ArrayList<Group>();
 
         try{
-            ResultSet res = mBridge.querier.executeQuery(GROUP);
+            ResultSet res = mBridge.querier.executeQuery(GROUP_SECURE);
+            res.next();
 
             while(res.next()){
-                groups.add(new Group(res.getInt(1), res.getString(2), getEmployeeById(res.getInt(4)).getAlias()));   
+                groups.add(new Group(res.getInt(1), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));   
             }
         }
         catch(SQLException sqle){
@@ -788,7 +798,7 @@ public class DBActions {
     }
 
     public Group getGroupById(int id){
-        Group grp = new Group(0, "", "");
+        Group grp = new Group(0, "", "", LocalDate.now().toString());
         PreparedStatement grpSta;
 
         try{
@@ -799,7 +809,8 @@ public class DBActions {
             if(res.next()){
                 grp.setId(res.getInt(1));
                 grp.setName(res.getString(2));
-                grp.setOwner(getEmployeeById(res.getInt(4)).getAlias());
+                grp.setOwner(res.getString(4) + " (" + res.getInt(3) + ")");
+                grp.setCreationDate(res.getDate(5).toString());
             }
         }
         catch(SQLException sqle){
@@ -822,6 +833,182 @@ public class DBActions {
             GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error al intentar cargar datos.\n\n" + sqle.getMessage());
             mBridge.checkConnection(false);
             return 0;
+        }
+    }
+
+    /**
+     * Searches for groups that match the text input with a '%(text)%' pattern.
+     * @since 1.0
+     * @param term Indicates which column to search
+     * @param text The string which MySQL will attempt to match
+     * @return
+     */
+    public List<Group> searchGrpTerm(int term, String text){
+        PreparedStatement searchSta;
+        List<Group> grps = new ArrayList<Group>();
+
+        try{
+            switch(term){
+                case 1:
+                    searchSta = mBridge.conn.prepareStatement(GROUP_SEARCH_NAME);
+                    break;
+                case 2:
+                    searchSta = mBridge.conn.prepareStatement(GROUP_SEARCH_OWNER);
+                    break;
+            
+                default:
+                    GUI.launchMessage(2, "Error interno", "No se ha podido establecer la categoría de búsqueda.");
+                    grps.add(new Group(0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
+                    return grps;
+            }
+
+            searchSta.setString(1, "%" + text + "%");
+            ResultSet res = searchSta.executeQuery();
+
+            while (res.next()){
+                if(res.getInt(1) != 1){
+                    grps.add(new Group(res.getInt(1), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));
+                }
+            }
+
+            return grps;
+        }
+        catch(SQLException sqle){
+            sqle.printStackTrace();
+            GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error al intentar insertar datos.\n\n" + sqle.getMessage());
+            mBridge.checkConnection(false);
+            grps.add(new Group(0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
+            return grps;
+        }
+    }
+
+    /**
+     * Searches for groups whose date of creation matches the given date.
+     * @since 1.0
+     * @param range 
+     * @param date
+     * @return
+     */
+    public List<Group> searchGrpDateFull(LocalDate date){
+        PreparedStatement searchSta;
+        List<Group> grps = new ArrayList<Group>();
+
+        try{
+            searchSta = mBridge.conn.prepareStatement(GROUP_SEARCH_DATE_FULL);
+            searchSta.setString(1, date.toString() + "%");
+            ResultSet res = searchSta.executeQuery();
+
+            while(res.next()){
+                if(res.getInt(1) != 1){
+                    grps.add(new Group(res.getInt(1), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));
+                }
+            }
+
+            return grps;
+        }
+        catch(SQLException sqle){
+            sqle.printStackTrace();
+            GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error al intentar insertar datos.\n\n" + sqle.getMessage());
+            mBridge.checkConnection(false);
+
+            grps.add(new Group(0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
+            return grps;
+        }
+    }
+
+    /**
+     * 
+     * @since 1.0
+     * @param range
+     * @param date
+     * @return
+     */
+    public List<Group> searchGrpDateSingle(int range, int date){
+        PreparedStatement searchSta;
+        List<Group> grps = new ArrayList<Group>();
+
+        try{
+            switch(range){
+                case 2:
+                    searchSta = mBridge.conn.prepareStatement(GROUP_SEARCH_DATE_YEAR);
+                    break;
+                case 3:
+                    searchSta = mBridge.conn.prepareStatement(GROUP_SEARCH_DATE_MONTH);
+                    break;
+            
+                default:
+                    GUI.launchMessage(2, "Error interno", "No se ha podido establecer la categoría de búsqueda.");
+                    grps.add(new Group(0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
+                    return grps;
+            }
+
+            searchSta.setString(1, String.valueOf(date));
+            ResultSet res = searchSta.executeQuery();
+
+            while(res.next()){
+                if(res.getInt(1) != 1){
+                    grps.add(new Group(res.getInt(1), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));
+                }
+            }
+
+            return grps;
+        }
+        catch(SQLException sqle){
+            sqle.printStackTrace();
+            GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error al intentar insertar datos.\n\n" + sqle.getMessage());
+            mBridge.checkConnection(false);
+
+            grps.add(new Group(0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
+            return grps;
+        }
+    }
+
+    /**
+     * 
+     * @since 1.0
+     * @param range
+     * @param date1
+     * @param date2
+     * @return
+     */
+    public List<Group> searchGrpDateDouble(int range, int date1, int date2){
+        PreparedStatement searchSta;
+        List<Group> grps = new ArrayList<Group>();
+
+        try{
+            switch(range){
+                case 4:
+                    searchSta = mBridge.conn.prepareStatement(GROUP_SEARCH_DATE_DDMM);
+                    break;
+                case 5:
+                    searchSta = mBridge.conn.prepareStatement(GROUP_SEARCH_DATE_MMYY);
+                    break;
+            
+                default:
+                    GUI.launchMessage(2, "Error interno", "No se ha podido establecer la categoría de búsqueda.");
+                    grps.add(new Group(0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
+                    return grps;
+            }
+            
+            searchSta.setInt(1, date1);
+            searchSta.setInt(2, date2);
+            ResultSet res = searchSta.executeQuery();
+
+            while(res.next()){
+                if(res.getInt(1) != 1){
+                    grps.add(new Group(res.getInt(1), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));
+                }
+            }
+
+            return grps;
+        }
+        catch(SQLException sqle){
+            sqle.printStackTrace();
+            GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error al intentar insertar datos.\n\n" + sqle.getMessage());
+            mBridge.checkConnection(false);
+
+            grps.add(new Group(0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
+            return grps;
         }
     }
 

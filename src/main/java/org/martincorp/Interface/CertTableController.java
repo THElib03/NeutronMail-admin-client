@@ -1,18 +1,11 @@
 package org.martincorp.Interface;
 
-import java.sql.ResultSet;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.martincorp.Database.DBActions;
 import org.martincorp.Model.Certificate;
-import org.martincorp.Model.Employee;
-import org.martincorp.Model.Group;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;

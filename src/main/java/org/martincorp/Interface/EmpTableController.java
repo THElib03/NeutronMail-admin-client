@@ -58,12 +58,11 @@ public class EmpTableController {
         ObservableList<TablePosition> selectionList = table.getSelectionModel().getSelectedCells();
             
         if(selectionList.size() > 0){
-            TemplateController.loadEmpEdit();
             TablePosition selection = selectionList.get(0);
             int selectionRow = selection.getRow();
             Employee selected = table.getItems().get(selectionRow);
 
-            //eEmpCont.extSetup(selected.getID(), selected.getName(), selected.getPass());
+            TemplateController.loadEmpEdit(selected);
         }
     }
       //contextDelete
@@ -71,12 +70,11 @@ public class EmpTableController {
         ObservableList<TablePosition> selectionList = table.getSelectionModel().getSelectedCells();
             
         if(selectionList.size() > 0){
-            TemplateController.loadEmpDel();
             TablePosition selection = selectionList.get(0);
             int selectionRow = selection.getRow();
             Employee selected = table.getItems().get(selectionRow);
 
-            //dEmpCont.extSetup(selected.getID(), selected.getName(), selected.getPass());
+            TemplateController.loadEmpDel(selected);
         }
     }
 

@@ -1,6 +1,8 @@
 package org.martincorp.Interface;
 
 import org.martincorp.Database.DBActions;
+import org.martincorp.Model.Employee;
+import org.martincorp.Model.Group;
 
 import java.io.IOException;
 import java.net.URL;
@@ -79,11 +81,11 @@ public class TemplateController{
     }
       //empEditItem
     @FXML private void empEdit(){
-        loadEmpEdit();
+        loadEmpEdit(null);
     }
       //empDeleteItem
     @FXML private void empDelete(){
-        loadEmpDel();
+        loadEmpDel(null);
     }
       //groupTableItem
     @FXML private void groupTable(){
@@ -95,11 +97,11 @@ public class TemplateController{
     }
       //groupEditItem
     @FXML private void groupEdit(){
-        loadGroupEdit();
+        loadGroupEdit(null);
     }
       //groupDeleteItem
     @FXML private void groupDelete(){
-        loadGroupDel();
+        loadGroupDel(null);
     }
       //certTableItem
     @FXML private void certTable(){
@@ -282,7 +284,7 @@ public class TemplateController{
         }
     }
 
-    public static void loadEmpDel(){
+    public static void loadEmpDel(Employee delEmp){
         try{
             FXMLLoader delLoader = new FXMLLoader(GUI.class.getResource("/Fxml/empDelete.fxml"));
             Parent delRoot = delLoader.load();
@@ -298,6 +300,10 @@ public class TemplateController{
             Platform.runLater( () -> cleanTemplate());
             Platform.runLater( () -> templateRoot.setLeft(delRoot));
             Platform.runLater( () -> templateRoot.setRight(schRoot));
+
+            if(delEmp != null){
+                dEmpCont.extSetup(delEmp);
+            }
         }
         catch(IOException ioe){
             ioe.printStackTrace();
@@ -305,22 +311,26 @@ public class TemplateController{
         }
     }
 
-    public static void loadEmpEdit(){
+    public static void loadEmpEdit(Employee edtEmp){
         try{
-            FXMLLoader edLoader = new FXMLLoader(GUI.class.getResource("/Fxml/empEdit.fxml"));
-            Parent edRoot = edLoader.load();
+            FXMLLoader edtLoader = new FXMLLoader(GUI.class.getResource("/Fxml/empEdit.fxml"));
+            Parent edtRoot = edtLoader.load();
             FXMLLoader schLoader = new FXMLLoader(GUI.class.getResource("/Fxml/empSearch.fxml"));
             Parent schRoot = schLoader.load();
 
-            EmpEditController eEmpCont = edLoader.getController();
+            EmpEditController eEmpCont = edtLoader.getController();
             EmpSearchController sEmpCont = schLoader.getController();
             eEmpCont.setStage(window);
             sEmpCont.setStage(window);
             sEmpCont.setParent(2);
 
             Platform.runLater( () -> cleanTemplate());
-            Platform.runLater( () -> templateRoot.setLeft(edRoot));
+            Platform.runLater( () -> templateRoot.setLeft(edtRoot));
             Platform.runLater( () -> templateRoot.setRight(schRoot));
+
+            if(edtEmp != null){
+                eEmpCont.extSetup(edtEmp);
+            }
         }
         catch(IOException ioe){
             ioe.printStackTrace();
@@ -330,11 +340,12 @@ public class TemplateController{
 
     public static void loadGroupTable(){
         try{
-            FXMLLoader loader = new FXMLLoader(GUI.class.getResource("/Fxml/groupTable.fxml"));
+            FXMLLoader loader = new FXMLLoader(GUI.class.getResource("/Fxml/grpTable.fxml"));
             Parent root = loader.load();
 
             GroupTableController tGrpCont = loader.getController();
             tGrpCont.setStage(window);
+            tGrpCont.loadGroups();
 
             Platform.runLater( () -> cleanTemplate());
             Platform.runLater( () -> templateRoot.setCenter(root));
@@ -347,7 +358,7 @@ public class TemplateController{
 
     public static void loadGroupAdd(){
         try{
-            FXMLLoader loader = new FXMLLoader(GUI.class.getResource("/Fxml/groupTable.fxml"));
+            FXMLLoader loader = new FXMLLoader(GUI.class.getResource("/Fxml/grpTable.fxml"));
             Parent root = loader.load();
 
             GroupAddController aGrpCont = loader.getController();
@@ -362,16 +373,26 @@ public class TemplateController{
         }
     }
 
-    public static void loadGroupEdit(){
+    public static void loadGroupDel(Group delGrp){
         try{
-            FXMLLoader loader = new FXMLLoader(GUI.class.getResource("/Fxml/groupEdit.fxml"));
-            Parent root = loader.load();
+            FXMLLoader delLoader = new FXMLLoader(GUI.class.getResource("/Fxml/grpDel.fxml"));
+            Parent delRoot = delLoader.load();
+            FXMLLoader schLoader = new FXMLLoader(GUI.class.getResource("/Fxml/grpSearch.fxml"));
+            Parent schRoot = schLoader.load();
 
-            GroupEditController eGrpCont = loader.getController();
-            eGrpCont.setStage(window);
+            GroupDeleteController dGrpCont = delLoader.getController();
+            GroupSearchController sGrpCont = schLoader.getController();
+            dGrpCont.setStage(window);
+            sGrpCont.setStage(window);
+            sGrpCont.setParent(1);
 
             Platform.runLater( () -> cleanTemplate());
-            Platform.runLater( () -> templateRoot.setCenter(root));
+            Platform.runLater( () -> templateRoot.setLeft(delRoot));
+            Platform.runLater( () -> templateRoot.setRight(schRoot));
+
+            if(delGrp != null){
+                dGrpCont.extSetup(delGrp);
+            }
         }
         catch(IOException ioe){
             ioe.printStackTrace();
@@ -379,16 +400,26 @@ public class TemplateController{
         }
     }
 
-    public static void loadGroupDel(){
+    public static void loadGroupEdit(Group edtGrp){
         try{
-            FXMLLoader loader = new FXMLLoader(GUI.class.getResource("/Fxml/groupTable.fxml"));
-            Parent root = loader.load();
+            FXMLLoader edtLoader = new FXMLLoader(GUI.class.getResource("/Fxml/groupEdit.fxml"));
+            Parent edtRoot = edtLoader.load();
+            FXMLLoader schLoader = new FXMLLoader(GUI.class.getResource("/Fxml/grpSearch.fxml"));
+            Parent schRoot = schLoader.load();
 
-            GroupDeleteController dGrpCont = loader.getController();
-            dGrpCont.setStage(window);
+            GroupEditController eGrpCont = edtLoader.getController();
+            GroupSearchController sGrpCont = schLoader.getController();
+            eGrpCont.setStage(window);
+            sGrpCont.setStage(window);
+            sGrpCont.setParent(2);
 
             Platform.runLater( () -> cleanTemplate());
-            Platform.runLater( () -> templateRoot.setCenter(root));
+            Platform.runLater( () -> templateRoot.setLeft(edtRoot));
+            Platform.runLater( () -> templateRoot.setRight(schRoot));
+
+            if(edtGrp != null){
+                eGrpCont.extSetup(edtGrp);
+            }
         }
         catch(IOException ioe){
             ioe.printStackTrace();
@@ -415,7 +446,7 @@ public class TemplateController{
 
     public static void loadCertReboot(){
         try{
-            FXMLLoader loader = new FXMLLoader(GUI.class.getResource("/Fxml/groupTable.fxml"));
+            FXMLLoader loader = new FXMLLoader(GUI.class.getResource("/Fxml/grpTable.fxml"));
             Parent root = loader.load();
 
             GroupTableController tGrpCont = loader.getController();

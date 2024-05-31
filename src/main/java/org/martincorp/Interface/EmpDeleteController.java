@@ -1,17 +1,12 @@
 package org.martincorp.Interface;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.util.Optional;
 
 import org.martincorp.Database.DBActions;
-import org.martincorp.Database.MainBridge;
 import org.martincorp.Model.Employee;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;

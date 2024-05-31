@@ -104,6 +104,9 @@ public class EmpSearchController {
     }
 
     private void importTable(List<Employee> employees){
+        if(employees.size() == 0){
+            employees.add(new Employee(0, Online.OFFLINE, "No se ha encontrado", "", "", "ningún empleado", ""));
+        }
         //DONE: should i load this in a method, and how do i load the search results? Maybe divide the fetch and population to allow for external population without duplicate code?
         try{
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/empTable.fxml"));
@@ -127,73 +130,145 @@ public class EmpSearchController {
     @FXML private void search(){
         List<Employee> emps = new ArrayList<Employee>();
 
-        switch (searchCombo.getValue()) {
+        switch (searchCombo.getValue()){
             case "Nombre":
-                emps = db.searchEmpTerm(1, searchText.getText());
+                if(!searchText.getText().strip().equals("")){
+                    emps = db.searchEmpTerm(1, searchText.getText().strip());
+                }
+                else{
+                    GUI.launchMessage(5, "Advertencia", "El campo requerido para el nombre del empleado está vacío.");
+                }
                 break;
             case "Apellidos":
-                emps = db.searchEmpTerm(2, searchText.getText());
+                if(!searchText.getText().strip().equals("")){
+                    emps = db.searchEmpTerm(2, searchText.getText().strip());
+                }
+                else{
+                    GUI.launchMessage(5, "Advertencia", "El campo requerido para los apellidos del empleado está vacío.");
+                }
                 break;
             case "Usuario":
-                emps = db.searchEmpTerm(3, searchText.getText());
+                if(!searchText.getText().strip().equals("")){
+                    emps = db.searchEmpTerm(3, searchText.getText().strip());
+                }
+                else{
+                    GUI.launchMessage(5, "Advertencia", "El campo requerido para el nombre de usuario está vacío.");
+                }
                 break;
             case "Correo electrónico":
-                emps = db.searchEmpTerm(4, searchText.getText());
+                if(!searchText.getText().strip().equals("")){
+                    emps = db.searchEmpTerm(4, searchText.getText().strip());
+                }
+                else{
+                    GUI.launchMessage(5, "Advertencia", "El campo requerido para el correo electrónico está vacío.");
+                }
                 break;
             case "Inicio del contrato":
-                searchDate();
+                emps = searchDate();
                 break;
             case "Fin del contrato":
-                searchDate();
+                emps = searchDate();
                 break;
 
             default:
-                GUI.launchMessage(2, "Error interno", "");
+                GUI.launchMessage(2, "Error interno", "No se ha podido establecer la categoría de búsqueda.");
                 break;
         }
 
         importTable(emps);
     }
 
-    private void searchDate() {
+    private List<Employee> searchDate(){
+        //TODO: add 10 character limit to searchDateText (with it's own message?) here and in GroupSearchController. (There's a stackoverflow link in bookmarks)
         List<Employee> emps = new ArrayList<Employee>();
         int i = searchCombo.getValue() == "Fin del contrato" ? 5 : 0;
 
         switch (searchDateCombo.getValue()) {
             case "Día-Mes-Año":
-                emps = db.searchEmpDateFull(i + 1, searchDatePick.getValue());
+                if(searchDatePick.getValue() != null){
+                    if(searchDatePick.getValue().getYear() < 1 || searchDatePick.getValue().getYear() > 9999){
+                        GUI.launchMessage(5, "Advertencia", "Solo se permiten valores entre los años 1 y 9999 después de Cristo.");
+                    }
+                    else{
+                        emps = db.searchEmpDateFull(i + 1, searchDatePick.getValue());
+                    }
+                }
+                else{
+                    GUI.launchMessage(5, "Advertencia", "El campo requerido para la fecha está vacío.");
+                }
                 break;
             case "Año":
-                if(Integer.valueOf(searchDateText.getText()) < 1000 || Integer.valueOf(searchDateText.getText()) > 9999){
-                    emps = db.searchEmpDateSingle(i + 2, Integer.valueOf(searchDateText.getText()));
+                if(!searchDateText.getText().strip().equals("")){
+                    try{
+                        if(Integer.valueOf(searchDateText.getText().strip()) < 1 || Integer.valueOf(searchDateText.getText().strip()) > 9999){
+                            GUI.launchMessage(5, "Advertencia", "Introduzca un valor entre 1 y 9999.");
+                        }
+                        else{
+                            emps = db.searchEmpDateSingle(i + 2, Integer.valueOf(searchDateText.getText().strip()));
+                        }
+                    }
+                    catch(NumberFormatException nfe){
+                        GUI.launchMessage(5, "Advertencia", "Solo se permiten valores numéricos en este campo.");
+                    }
+                }
+                else{
+                    GUI.launchMessage(5, "Advertencia", "El campo requerido para la fecha está vacío.");
                 }
                 break;
             case "Mes":
-                if(Integer.valueOf(searchDateText.getText()) < 1 || Integer.valueOf(searchDateText.getText()) > 12){
-                    emps = db.searchEmpDateSingle(i + 2, Integer.valueOf(searchDateText.getText()));
+                if(!searchDateText.getText().strip().equals("")){
+                    try{
+                        if(Integer.valueOf(searchDateText.getText().strip()) < 1 || Integer.valueOf(searchDateText.getText().strip()) > 12){
+                            GUI.launchMessage(5, "Advertencia", "Introduzca un valor entre 1 y 12.");
+                        }
+                        else{
+                            emps = db.searchEmpDateSingle(i + 3, Integer.valueOf(searchDateText.getText().strip()));
+                        }
+                    }
+                    catch(NumberFormatException nfe){
+                        GUI.launchMessage(5, "Advertencia", "Solo se permiten valores numéricos en este campo.");
+                    }
+                }
+                else{
+                    GUI.launchMessage(5, "Advertencia", "El campo requerido para la fecha está vacío.");
                 }
                 break;
             case "Día-Mes":
-                db.searchEmpDateDouble(i + 4, searchDatePick.getValue().getDayOfMonth(), searchDatePick.getValue().getMonthValue());
+                if(searchDatePick.getValue() != null){
+                    emps = db.searchEmpDateDouble(i + 4, searchDatePick.getValue().getDayOfMonth(), searchDatePick.getValue().getMonthValue());
+                }
+                else{
+                    GUI.launchMessage(5, "Advertencia", "El campo requerido para la fecha está vacío.");
+                }
                 break;
             case "Mes-Año":
-                db.searchEmpDateDouble(i + 5, searchDatePick.getValue().getMonthValue(), searchDatePick.getValue().getYear());
+                if(searchDatePick.getValue() != null){
+                    if(searchDatePick.getValue().getYear() < 1 || searchDatePick.getValue().getYear() > 9999){
+                        GUI.launchMessage(5, "Advertencia", "Solo se permiten valores entre los años 1 y 9999 después de Cristo.");
+                    }
+                    else{
+                        emps = db.searchEmpDateDouble(i + 5, searchDatePick.getValue().getMonthValue(), searchDatePick.getValue().getYear());
+                    }
+                }
+                else{
+                    GUI.launchMessage(5, "Advertencia", "El campo requerido para la fecha está vacío.");
+                }
                 break;
 
             default:
                 emps.add(new Employee(0, Online.OFFLINE, "No se ha encontrado", "", "", "ningún empleado", ""));
-                GUI.launchMessage(2, "Error interno", "");
+                GUI.launchMessage(2, "Error interno", "No se ha podido establecer la categoría de búsqueda.");
                 break;
         }
 
-        importTable(emps);
+        return emps;
     }
 
-    public static void setStage(Stage w){
+    public void setStage(Stage w){
         window = w;
     }
 
-    public static void setParent(int p){
+    public void setParent(int p){
         parent = p;
     }
 }

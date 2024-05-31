@@ -1,8 +1,6 @@
 package org.martincorp.Interface;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.martincorp.Database.DBActions;
@@ -11,8 +9,6 @@ import org.martincorp.Model.Group;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
@@ -30,18 +26,18 @@ public class GroupTableController {
     @FXML private TableColumn<Group, Integer> idCol;
     @FXML private TableColumn<Group, String>  nameCol;
     @FXML private TableColumn<Group, String> ownerCol;
+    @FXML private TableColumn<Group, LocalDate> creationCol;
 
     //Other variables:
     private Stage window;
     private DBActions db;
+    private int parent = 0;
     private GroupDeleteController dGroupCont;
     
     //Equivalent to main method when the controller is started:
     @FXML
     public void initialize(){
         db = new DBActions();
-
-        Platform.runLater( () -> loadTable());
     }
 
     //GUI actions:
@@ -54,12 +50,11 @@ public class GroupTableController {
         ObservableList<TablePosition> selectionList = table.getSelectionModel().getSelectedCells();
             
         if(selectionList.size() > 0){
-            TemplateController.loadGroupDel();
             TablePosition selection = selectionList.get(0);
             int selectionRow = selection.getRow();
             Group selected = table.getItems().get(selectionRow);
 
-            //eGroupCont.extSetup(selected.getID(), selected.getName(), selected.getPass());
+            TemplateController.loadGroupEdit(selected);
         }
     }
       //contextDelete
@@ -67,34 +62,42 @@ public class GroupTableController {
         ObservableList<TablePosition> selectionList = table.getSelectionModel().getSelectedCells();
             
         if(selectionList.size() > 0){
-            TemplateController.loadGroupDel();
             TablePosition selection = selectionList.get(0);
             int selectionRow = selection.getRow();
             Group selected = table.getItems().get(selectionRow);
 
-            //dGroupCont.extSetup(selected.getID(), selected.getName(), selected.getPass());
+            TemplateController.loadGroupDel(selected);
         }
         else{
-            System.out.println("nada");
+            
         }
     }
 
     //Methods:
-    private void loadTable(){
+    public void loadGroups(){
         List<Group> groups = db.getGroups();
 
         if(groups.size() == 0){
-            groups.add(new Group(0, "No se ha creado", "ningún grupo"));
+            groups.add(new Group(0, "No se ha creado", "ningún grupo", LocalDate.now().toString()));
         }
 
+        Platform.runLater( () -> populateTable(groups));
+    }
+
+    public void populateTable(List<Group> groups){
         table.setItems(FXCollections.observableArrayList(groups));
 
         idCol.setCellValueFactory(new PropertyValueFactory<>(groups.get(0).IdProperty().getName()));
         nameCol.setCellValueFactory(new PropertyValueFactory<>(groups.get(0).nameProperty().getName()));
         ownerCol.setCellValueFactory(new PropertyValueFactory<>(groups.get(0).ownerProperty().getName()));
+        creationCol.setCellValueFactory(new PropertyValueFactory<>(groups.get(0).creationDateProperty().getName()));
     }
 
     public void setStage(Stage w){
         this.window = w;
+    }
+
+    public void setParent(int p){
+        this.parent = p;
     }
 }

@@ -5,11 +5,12 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 
-<TableView fx:id="table" prefHeight="768.0" prefWidth="1366.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.martincorp.Interface.GroupTableController">
+<TableView fx:id="table" prefHeight="768.0" prefWidth="1366.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.martincorp.Interface.GroupTableController">
    <columns>
       <TableColumn fx:id="idCol" maxWidth="120.0" minWidth="30.0" prefWidth="60.0" text="ID" />
-      <TableColumn fx:id="nameCol" maxWidth="240.0" minWidth="80.0" prefWidth="160.0" text="Nombre" />
-      <TableColumn fx:id="ownerCol" maxWidth="240.0" minWidth="120.0" prefWidth="160.0" text="Creador" />
+      <TableColumn fx:id="nameCol" maxWidth="1.7976931348623157E308" minWidth="80.0" prefWidth="160.0" text="Nombre" />
+      <TableColumn fx:id="ownerCol" maxWidth="1.7976931348623157E308" minWidth="120.0" prefWidth="160.0" text="Dueño (ID)" />
+      <TableColumn fx:id="creationCol" maxWidth="1.7976931348623157E308" minWidth="120.0" prefWidth="160.0" text="Fecha de Creación" />
    </columns>
    <contextMenu>
       <ContextMenu>
