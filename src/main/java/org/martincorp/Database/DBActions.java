@@ -60,7 +60,7 @@ public class DBActions {
     private final String ACTI_ADD = "INSERT INTO `active` VALUES(?, 0)";
     private final String ACTI_DROP = "DELETE FROM `active` WHERE act_emp = ?; ";
     private final String CERTIFICATE = "SELECT * FROM certificate";
-    private final String CERT_ADD_EMP = "INSERT INTO certificate VALUES(NULL, ?, NULL, 'empty', 'empty')";
+    private final String CERT_ADD_EMP = "INSERT INTO certificate VALUES(NULL, ?, NULL, NULL)";
     private final String CERT_ADD_GROUP = "INSERT INTO certificate VALUES(NULL, NULL, ?, ?, ?)";
     private final String CERT_DROP = "DELETE FROM certificate WHERE cert_emp = ?; ";
     private final String GEN_CERT_COUNT = "SELECT COUNT(*) FROM certificate WHERE cert_public_key NOT IN ('empty')";
@@ -94,9 +94,6 @@ public class DBActions {
             ie.printStackTrace();
             GUI.launchMessage(2, "Error interno", "Ha ocurrido un error durante el manejo de procesos:\n\n" + ie.getMessage());
         }
-
-        //Query declaration:
-        
     }
 
     //Methods:
@@ -839,9 +836,9 @@ public class DBActions {
     /**
      * Searches for groups that match the text input with a '%(text)%' pattern.
      * @since 1.0
-     * @param term Indicates which column to search
-     * @param text The string which MySQL will attempt to match
-     * @return
+     * @param term indicates which column to search, group  name (1) or the group creator (2)
+     * @param text the string which MySQL will attempt to match
+     * @return a list of groups that match the given text
      */
     public List<Group> searchGrpTerm(int term, String text){
         PreparedStatement searchSta;
@@ -885,9 +882,8 @@ public class DBActions {
     /**
      * Searches for groups whose date of creation matches the given date.
      * @since 1.0
-     * @param range 
-     * @param date
-     * @return
+     * @param date the date which MySQL will attempt to match
+     * @return a list of groups that match the given date
      */
     public List<Group> searchGrpDateFull(LocalDate date){
         PreparedStatement searchSta;
@@ -917,11 +913,11 @@ public class DBActions {
     }
 
     /**
-     * 
+     * Searches for groups whose date of creation matches the given year or month.
      * @since 1.0
-     * @param range
-     * @param date
-     * @return
+     * @param range whether it will compare year (2) or month (3)
+     * @param date the given year or month that MySQL will attempt to match
+     * @return a list of groups that match the given year or month
      */
     public List<Group> searchGrpDateSingle(int range, int date){
         PreparedStatement searchSta;
@@ -964,11 +960,11 @@ public class DBActions {
     }
 
     /**
-     * 
+     * Searches for groups whose date of creation matches the given period of time, a day/month (dd/MM) of every year or a exact month of a exact year (MM/yyyy).
      * @since 1.0
-     * @param range
-     * @param date1
-     * @param date2
+     * @param range whether it will compare dd/MM or MM/yyyy
+     * @param date1 the first unit of the date, either dd or MM
+     * @param date2 the second unit of the date, either MM or yyyy
      * @return
      */
     public List<Group> searchGrpDateDouble(int range, int date1, int date2){

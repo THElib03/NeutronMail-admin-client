@@ -86,11 +86,11 @@ public class EmpAddController {
             GUI.launchMessage(5, "Advertencia", "Las contraseñas no coinciden.");
             return;
         }
-        else if(pass1Text.getText().equals("") || pass2Text.getText().equals("")){
+        else if(pass1Text.getText().strip().equals("") || pass2Text.getText().strip().equals("")){
             GUI.launchMessage(5, "Advertencia", "La contraseña no puede estar vacía.");
             return;
         }
-        else if(fnameText.getText().equals("") || lnameText.getText().equals("") || aliasText.getText().equals("") || emailText.getText().equals("") || startDatePick.getValue() == null){
+        else if(fnameText.getText().strip().equals("") || lnameText.getText().strip().equals("") || aliasText.getText().strip().equals("") || emailText.getText().strip().equals("") || startDatePick.getValue() == null){
             GUI.launchMessage(5, "Advertencia", "Uno de los campos requeridos está vacío");
             return;
         }
@@ -98,17 +98,16 @@ public class EmpAddController {
         LocalDate endDate = null;
         if(tempRadio.isSelected()){
             endDate = endDatePick.getValue();
-            System.out.println(endDate.toString());
         }
 
         byte[] salt = enc.getSalt();
-        byte[] hash = enc.saltedHash(pass1Text.getText().toCharArray(), salt);
+        byte[] hash = enc.saltedHash(pass1Text.getText().strip().toCharArray(), salt);
         byte[] key = new byte[salt.length + hash.length];
         System.arraycopy(salt, 0, key, 0, salt.length);
         System.arraycopy(hash, 0, key, salt.length, hash.length);
 
         //TODO: trim al strings with .strip()
-        if(db.newEmp(fnameText.getText(), lnameText.getText(), startDatePick.getValue(), endDate, key, aliasText.getText(), emailText.getText())){
+        if(db.newEmp(fnameText.getText().strip(), lnameText.getText().strip(), startDatePick.getValue(), endDate, key, aliasText.getText().strip(), emailText.getText().strip())){
             if(db.newEmpCert(db.getLastEmp() - 1) && db.newEmpAct(db.getLastEmp() - 1)){
                 GUI.launchMessage(3, "Operación completada", "Se ha añadido con éxito un nuevo empleado");
             }

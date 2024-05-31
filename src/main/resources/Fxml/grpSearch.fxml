@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="searchRoot" minHeight="-Infinity" minWidth="-Infinity" prefWidth="671.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.martincorp.Interface.GroupSearchController">
+<BorderPane fx:id="searchRoot" minHeight="-Infinity" minWidth="-Infinity" prefWidth="671.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.martincorp.Interface.GroupSearchController">
    <top>
       <GridPane prefHeight="120.0" BorderPane.alignment="CENTER">
          <columnConstraints>
