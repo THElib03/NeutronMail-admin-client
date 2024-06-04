@@ -7,12 +7,13 @@ import javafx.beans.property.StringProperty;
 
 public class Group {
     //Variables:
-    private IntegerProperty Id;
+    private IntegerProperty Id, ownerId;
     private StringProperty name, owner, creationDate;
 
     //Builder:
-    public Group(int i, String n, String o, String d){
+    public Group(int i, int oi, String n, String o, String d){
         setId(i);
+
         setName(n);
         setOwner(o);
         setCreationDate(d);
@@ -35,6 +36,22 @@ public class Group {
 
     public Integer getId(){
         return IdProperty().getValue();
+    }
+
+    public IntegerProperty ownerIdProperty(){
+        if(ownerId == null){
+            ownerId = new SimpleIntegerProperty(this, "ownerId");
+        }
+
+        return ownerId;
+    }
+
+    public void setOwnerId(int ownerId){
+        ownerIdProperty().set(ownerId);
+    }
+
+    public Integer getOwnerId(){
+        return ownerIdProperty().getValue();
     }
 
     public StringProperty nameProperty(){

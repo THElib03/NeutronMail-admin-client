@@ -112,7 +112,8 @@ public class EmpAddController {
                 GUI.launchMessage(3, "Operación completada", "Se ha añadido con éxito un nuevo empleado");
             }
             else{
-                db.dropEmp(db.getLastEmp());
+                int failedEmp = db.getLastEmp();
+                db.dropEmp(failedEmp, db.getEmployeeById(failedEmp).getAlias());
             }
         }
     }

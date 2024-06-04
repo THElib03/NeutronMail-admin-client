@@ -38,7 +38,7 @@ public class DBActions {
     private final String EMP_COUNT = "SELECT COUNT(*) FROM employee";
     private final String EMP_ADD = "INSERT INTO employee VALUES(NULL, ?, ?, ?, ?, ?, ?)";
     private final String EMP_ADD_PASS;
-    private final String EMP_DROP = "UPDATE employee SET emp_pass = '' WHERE emp_id = ?; ";
+    private final String EMP_DROP;
     private final String EMP_EDIT = "UPDATE employee SET emp_fname = ?, emp_lname = ?, emp_sDate = ?, emp_eDate = ?, emp_alias = ?, emp_email = ? WHERE emp_id = ?";
     private final String LAST_EMP = "SELECT MAX(emp_id) FROM employee";
     private final String EMP_NUMBER = "SELECT emp_alias FROM employee WHERE emp_alias LIKE ?";
@@ -58,17 +58,18 @@ public class DBActions {
     private final String EMP_SEARCH_EDATE_MMYY = "SELECT * FROM employee JOIN `active` ON (employee.emp_id=`active`.act_emp) WHERE MONTH(emp_sDate) = ? AND YEAR(emp_eDate) = ?";
     private final String ACTI_EMP = "SELECT COUNT(*) FROM `active` JOIN employee ON (`active`.act_emp=employee.emp_id) WHERE act_logged = 1";
     private final String ACTI_ADD = "INSERT INTO `active` VALUES(?, 0)";
-    private final String ACTI_DROP = "DELETE FROM `active` WHERE act_emp = ?; ";
+    private final String ACTI_DROP = "DELETE FROM `active` WHERE act_emp = ?";
     private final String CERTIFICATE = "SELECT * FROM certificate";
     private final String CERT_ADD_EMP = "INSERT INTO certificate VALUES(NULL, ?, NULL, NULL)";
     private final String CERT_ADD_GROUP = "INSERT INTO certificate VALUES(NULL, NULL, ?, ?, ?)";
-    private final String CERT_DROP = "DELETE FROM certificate WHERE cert_emp = ?; ";
+    private final String EMP_CERT_DROP = "DELETE FROM certificate WHERE cert_emp = ?";
     private final String GEN_CERT_COUNT = "SELECT COUNT(*) FROM certificate WHERE cert_public_key NOT IN ('empty')";
     private final String GEN_CERT_CHK_EMP = "SELECT COUNT(*) FROM certificate WHERE cert_emp=? AND cert_public_key NOT IN ('empty')";
     private final String GEN_CERT_CHK_GRP = "SELECT COUNT(*) FROM certificate WHERE cert_group=? AND cert_public_key NOT IN ('empty')";
     private final String GROUP_RAW = "SELECT * FROM publicgroup";
     private final String GROUP_SECURE = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id)";
     private final String GROUP_BY_ID = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE grp_id = ?";
+    private final String GROUP_ADD = "INSERT INTO publicgroup VALUES(NULL, ?, ?, ?, NULL)";
     private final String GROUP_COUNT = "SELECT COUNT(*) FROM publicgroup";
     private final String GROUP_EMPS = "SELECT COUNT(*) FROM groupuser";
     private final String GROUP_SEARCH_NAME = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE grp_name LIKE ?";
@@ -87,6 +88,7 @@ public class DBActions {
 
         //Querys declaration:
         EMP_ADD_PASS = "INSERT INTO " + lBridge.getDB() + ".`user` VALUES(NULL, ?, ?, ?)";
+        EMP_DROP = "DELETE FROM " + lBridge.getDB() + ".`user` WHERE user_alias LIKE ? AND user_comp = ?";
         try{
             Thread.sleep(750);
         }
@@ -221,17 +223,19 @@ public class DBActions {
             res.next();
 
             while(res.next()){
-                emps.add(
-                    new Employee(
-                        res.getInt(1),
-                        res.getBoolean(9) ? Online.ONLINE : Online.OFFLINE,
-                        res.getString(2) + " " + res.getString(3),
-                        res.getString(4),
-                        res.getString(5),
-                        res.getString(6),
-                        res.getString(7)
-                    )
-                );
+                if(res.getInt(1) != 1){
+                    emps.add(
+                        new Employee(
+                            res.getInt(1),
+                            res.getBoolean(9) ? Online.ONLINE : Online.OFFLINE,
+                            res.getString(2) + " " + res.getString(3),
+                            res.getString(4),
+                            res.getString(5),
+                            res.getString(6),
+                            res.getString(7)
+                        )
+                    );
+                }
             }
         }
         catch(SQLException sqle){
@@ -315,21 +319,22 @@ public class DBActions {
         }
     }
 
-    public boolean dropEmp(int id){
+    public boolean dropEmp(int empId, String empAlias){
         PreparedStatement dropSta;
         PreparedStatement dropSta2;
         PreparedStatement dropSta3;
 
         try{
             dropSta = mBridge.conn.prepareStatement(EMP_DROP);
-            dropSta2 = mBridge.conn.prepareStatement(CERT_DROP);
+            dropSta2 = mBridge.conn.prepareStatement(EMP_CERT_DROP);
             dropSta3 = mBridge.conn.prepareStatement(ACTI_DROP);
             //DONE: ALSO DELETE IN THIS METHOD THE ASSOCIATED CERTIFICATE AND ACTIVE ROW. NO NEED FOR EXTRA METHODS FOR 3 THINGS SO LINKED
-            dropSta.setInt(1, id);
-            dropSta2.setInt(1, id);
-            dropSta3.setInt(1, id);
+            dropSta.setString(1, empAlias);
+            dropSta.setInt(2, getCompanyId(mBridge.getDB()));
+            dropSta2.setInt(1, empId);
+            dropSta3.setInt(1, empId);
 
-            if(dropSta.execute() && dropSta2.execute() && dropSta3.execute()){
+            if(dropSta.executeUpdate() == 1 && dropSta2.executeUpdate() == 1 && dropSta3.executeUpdate() == 1){
                 GUI.launchMessage(3, "Operación completada", "Se ha eliminado con éxito al empleado seleccionado.");
                 return true;
             }
@@ -350,11 +355,11 @@ public class DBActions {
     /**
      * Modifies the indicated employee row.
      * @since 1.0
-     * @param id id of the employee to be modified
+     * @param empId id of the employee to be modified
      * @param newEmp updated employee object to push into the database
      * @return true if the edit is successful, false if any problem arises
      */
-    public boolean editEmp(int id, Employee newEmp){
+    public boolean editEmp(int empId, Employee newEmp){
         PreparedStatement editSta;
 
         try{
@@ -366,7 +371,7 @@ public class DBActions {
             editSta.setDate(4, Date.valueOf(LocalDate.parse(newEmp.getStartDate())));
             editSta.setString(5, newEmp.getAlias());
             editSta.setString(6, newEmp.getMail());
-            editSta.setInt(7, id);
+            editSta.setInt(7, empId);
 
             if(editSta.executeUpdate() == 1){
                 GUI.launchMessage(3, "Operación completada", "Se ha modifiado con éxito al empleado seleccionado.");
@@ -730,6 +735,10 @@ public class DBActions {
         }
     }
 
+    public boolean newGrpCert(int grp){
+        return false;
+    }
+
     public boolean isGenerated(int id, boolean table){
         PreparedStatement certSta;
 
@@ -782,7 +791,7 @@ public class DBActions {
             res.next();
 
             while(res.next()){
-                groups.add(new Group(res.getInt(1), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));   
+                groups.add(new Group(res.getInt(1), res.getInt(3), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));   
             }
         }
         catch(SQLException sqle){
@@ -795,7 +804,7 @@ public class DBActions {
     }
 
     public Group getGroupById(int id){
-        Group grp = new Group(0, "", "", LocalDate.now().toString());
+        Group grp = new Group(0, 0, "", "", LocalDate.now().toString());
         PreparedStatement grpSta;
 
         try{
@@ -817,6 +826,30 @@ public class DBActions {
         }
 
         return grp;
+    }
+
+    public boolean newGroup(Group newGrp){
+        PreparedStatement newSta;
+        // INSERT INTO publicgroup VALUES(NULL, ?, ?, ?, NULL)
+
+        try{
+            newSta = mBridge.conn.prepareStatement(GROUP_ADD);
+            newSta.setString(1, newGrp.getName());
+            
+        }
+        catch(SQLException sqle){
+
+        }
+
+        return false;
+    }
+
+    public boolean dropGrp(int grpId){
+        return false;
+    }
+
+    public boolean editGrp(int grpId, Group newGrp){
+        return false;
     }
 
     public int getGroupCount(){
@@ -855,7 +888,7 @@ public class DBActions {
             
                 default:
                     GUI.launchMessage(2, "Error interno", "No se ha podido establecer la categoría de búsqueda.");
-                    grps.add(new Group(0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
+                    grps.add(new Group(0, 0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
                     return grps;
             }
 
@@ -864,7 +897,7 @@ public class DBActions {
 
             while (res.next()){
                 if(res.getInt(1) != 1){
-                    grps.add(new Group(res.getInt(1), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));
+                    grps.add(new Group(res.getInt(1), res.getInt(3), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));
                 }
             }
 
@@ -874,7 +907,7 @@ public class DBActions {
             sqle.printStackTrace();
             GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error al intentar insertar datos.\n\n" + sqle.getMessage());
             mBridge.checkConnection(false);
-            grps.add(new Group(0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
+            grps.add(new Group(0, 0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
             return grps;
         }
     }
@@ -896,7 +929,7 @@ public class DBActions {
 
             while(res.next()){
                 if(res.getInt(1) != 1){
-                    grps.add(new Group(res.getInt(1), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));
+                    grps.add(new Group(res.getInt(1), res.getInt(3), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));
                 }
             }
 
@@ -907,7 +940,7 @@ public class DBActions {
             GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error al intentar insertar datos.\n\n" + sqle.getMessage());
             mBridge.checkConnection(false);
 
-            grps.add(new Group(0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
+            grps.add(new Group(0, 0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
             return grps;
         }
     }
@@ -934,7 +967,7 @@ public class DBActions {
             
                 default:
                     GUI.launchMessage(2, "Error interno", "No se ha podido establecer la categoría de búsqueda.");
-                    grps.add(new Group(0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
+                    grps.add(new Group(0, 0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
                     return grps;
             }
 
@@ -943,7 +976,7 @@ public class DBActions {
 
             while(res.next()){
                 if(res.getInt(1) != 1){
-                    grps.add(new Group(res.getInt(1), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));
+                    grps.add(new Group(res.getInt(1), res.getInt(3), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));
                 }
             }
 
@@ -954,7 +987,7 @@ public class DBActions {
             GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error al intentar insertar datos.\n\n" + sqle.getMessage());
             mBridge.checkConnection(false);
 
-            grps.add(new Group(0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
+            grps.add(new Group(0, 0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
             return grps;
         }
     }
@@ -982,7 +1015,7 @@ public class DBActions {
             
                 default:
                     GUI.launchMessage(2, "Error interno", "No se ha podido establecer la categoría de búsqueda.");
-                    grps.add(new Group(0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
+                    grps.add(new Group(0, 0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
                     return grps;
             }
             
@@ -992,7 +1025,7 @@ public class DBActions {
 
             while(res.next()){
                 if(res.getInt(1) != 1){
-                    grps.add(new Group(res.getInt(1), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));
+                    grps.add(new Group(res.getInt(1), res.getInt(3), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));
                 }
             }
 
@@ -1003,7 +1036,7 @@ public class DBActions {
             GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error al intentar insertar datos.\n\n" + sqle.getMessage());
             mBridge.checkConnection(false);
 
-            grps.add(new Group(0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
+            grps.add(new Group(0, 0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
             return grps;
         }
     }

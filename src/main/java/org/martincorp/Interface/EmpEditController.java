@@ -57,7 +57,7 @@ public class EmpEditController {
 
     //Methods:
     @FXML private void edit(){
-        if(nameText.getText().trim() == "" || aliasText.getText().trim() == "" || emailText.getText().trim() == "" || sDatePick.getValue() == null){
+        if(nameText.getText().strip() == "" || aliasText.getText().strip() == "" || emailText.getText().strip() == "" || sDatePick.getValue() == null){
             GUI.launchMessage(5, "Advertencia", "Uno de los campos requeridos está vacío");
         }
         else{
@@ -66,7 +66,7 @@ public class EmpEditController {
                 eDate = true;
             }
 
-            db.editEmp(activeId, new Employee(activeId, Online.OFFLINE, nameText.getText(), sDatePick.getValue().toString(), eDate ? eDatePick.getValue().toString() : null, aliasText.getText(), emailText.getText()));
+            db.editEmp(activeId, new Employee(activeId, Online.OFFLINE, nameText.getText().strip(), sDatePick.getValue().toString(), eDate ? eDatePick.getValue().toString() : null, aliasText.getText().strip(), emailText.getText().strip()));
         }
     }
 

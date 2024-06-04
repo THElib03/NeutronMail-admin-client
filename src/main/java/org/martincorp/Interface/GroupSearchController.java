@@ -44,7 +44,7 @@ public class GroupSearchController {
         db = new DBActions();
 
         List<Group> emptyGrp = new ArrayList<Group>();
-        emptyGrp.add(new Group(0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
+        emptyGrp.add(new Group(0, 0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
         importTable(emptyGrp);
 
         searchDateCombo.getItems().addAll("Día-Mes-Año", "Año", "Mes", "Día-Mes", "Mes-Año");
@@ -103,7 +103,7 @@ public class GroupSearchController {
 
     private void importTable(List<Group> groups){
         if(groups.size() == 0){
-            groups.add(new Group(0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
+            groups.add(new Group(0, 0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
         }
         //DONE: should i load this in a method, and how do i load the search results? Maybe divide the fetch and population to allow for external population without duplicate code?
         try{
@@ -234,7 +234,7 @@ public class GroupSearchController {
                 break;
                 
             default:
-                grps.add(new Group(0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
+                grps.add(new Group(0, 0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
                 GUI.launchMessage(2, "Error interno", "No se ha podido establecer la categoría de búsqueda.");
                 break;
         }

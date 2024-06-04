@@ -78,7 +78,7 @@ public class GroupTableController {
         List<Group> groups = db.getGroups();
 
         if(groups.size() == 0){
-            groups.add(new Group(0, "No se ha creado", "ningún grupo", LocalDate.now().toString()));
+            groups.add(new Group(0, 0, "No se ha creado", "ningún grupo", LocalDate.now().toString()));
         }
 
         Platform.runLater( () -> populateTable(groups));

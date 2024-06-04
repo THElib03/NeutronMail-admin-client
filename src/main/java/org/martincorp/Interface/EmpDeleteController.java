@@ -49,12 +49,18 @@ public class EmpDeleteController {
     //Equivalent to main method when the controller is started:
     @FXML public void initialize(){
         db = new DBActions();
+        activeId = 0;
     }
 
     //Methods:
     @FXML private void delete(){
-        if(db.dropEmp(activeId)){
-            TemplateController.loadEmpTable();
+        if(activeId != 0 && !(aliasText.getText().strip().equals(""))){
+            if(db.dropEmp(activeId, aliasText.getText())){
+                TemplateController.loadEmpTable();
+            }
+        }
+        else{
+            GUI.launchMessage(5, "Advertencia", "No se ha seleccionado ningún empleado para eliminar.");
         }
     }
 
