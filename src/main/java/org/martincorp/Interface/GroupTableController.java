@@ -1,5 +1,6 @@
 package org.martincorp.Interface;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -10,6 +11,8 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TablePosition;
@@ -50,11 +53,7 @@ public class GroupTableController {
         ObservableList<TablePosition> selectionList = table.getSelectionModel().getSelectedCells();
             
         if(selectionList.size() > 0){
-            TablePosition selection = selectionList.get(0);
-            int selectionRow = selection.getRow();
-            Group selected = table.getItems().get(selectionRow);
-
-            TemplateController.loadGroupEdit(selected);
+            TemplateController.loadGroupEdit(table.getItems().get(selectionList.get(0).getRow()));
         }
     }
       //contextDelete
@@ -62,14 +61,7 @@ public class GroupTableController {
         ObservableList<TablePosition> selectionList = table.getSelectionModel().getSelectedCells();
             
         if(selectionList.size() > 0){
-            TablePosition selection = selectionList.get(0);
-            int selectionRow = selection.getRow();
-            Group selected = table.getItems().get(selectionRow);
-
-            TemplateController.loadGroupDel(selected);
-        }
-        else{
-            
+            TemplateController.loadGroupDel(table.getItems().get(selectionList.get(0).getRow()));
         }
     }
 
@@ -91,6 +83,54 @@ public class GroupTableController {
         nameCol.setCellValueFactory(new PropertyValueFactory<>(groups.get(0).nameProperty().getName()));
         ownerCol.setCellValueFactory(new PropertyValueFactory<>(groups.get(0).ownerProperty().getName()));
         creationCol.setCellValueFactory(new PropertyValueFactory<>(groups.get(0).creationDateProperty().getName()));
+    }
+
+    @FXML private void updateParent(){
+        try{
+            switch(parent){
+                case 0:
+                    return;
+                case 1:
+                    ObservableList<TablePosition> selectionListDelete = table.getSelectionModel().getSelectedCells();
+                
+                    if(selectionListDelete.size() > 0){
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/grpDel.fxml"));
+                        Parent root = loader.load();
+
+                        GroupDeleteController dGrpCont = loader.getController();
+                        dGrpCont.setStage(window);
+
+                        Platform.runLater( () -> TemplateController.cleanLeft());
+                        Platform.runLater( () -> TemplateController.setLeft(root));
+
+                        dGrpCont.extSetup(table.getItems().get(selectionListDelete.get(0).getRow()));
+                    }
+                    break;
+                case 2:
+                    ObservableList<TablePosition> selectionListEdit = table.getSelectionModel().getSelectedCells();
+                
+                    if(selectionListEdit.size() > 0){
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/grpEdit.fxml"));
+                        Parent root = loader.load();
+
+                        GroupEditController eGrpCont = loader.getController();
+                        eGrpCont.setStage(window);
+
+                        Platform.runLater( () -> TemplateController.cleanLeft());
+                        Platform.runLater( () -> TemplateController.setLeft(root));
+
+                        eGrpCont.extSetup(table.getItems().get(selectionListEdit.get(0).getRow()));
+                    }
+                    break;
+            
+                default:
+                    break;
+            }
+        }
+        catch(IOException ioe){
+            ioe.printStackTrace();
+            GUI.launchMessage(2, "Error de interfaz", "No se ha modido cargar la vista seleccionada.\n\n" + ioe.getMessage());
+        }
     }
 
     public void setStage(Stage w){

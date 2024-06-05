@@ -105,7 +105,7 @@ public class GroupSearchController {
         if(groups.size() == 0){
             groups.add(new Group(0, 0, "No se ha encontrado", "ningún grupo", LocalDate.now().toString()));
         }
-        //DONE: should i load this in a method, and how do i load the search results? Maybe divide the fetch and population to allow for external population without duplicate code?
+
         try{
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/grpTable.fxml"));
             Parent root = loader.load();

@@ -58,11 +58,7 @@ public class EmpTableController {
         ObservableList<TablePosition> selectionList = table.getSelectionModel().getSelectedCells();
             
         if(selectionList.size() > 0){
-            TablePosition selection = selectionList.get(0);
-            int selectionRow = selection.getRow();
-            Employee selected = table.getItems().get(selectionRow);
-
-            TemplateController.loadEmpEdit(selected);
+            TemplateController.loadEmpEdit(table.getItems().get(selectionList.get(0).getRow()));
         }
     }
       //contextDelete
@@ -70,11 +66,7 @@ public class EmpTableController {
         ObservableList<TablePosition> selectionList = table.getSelectionModel().getSelectedCells();
             
         if(selectionList.size() > 0){
-            TablePosition selection = selectionList.get(0);
-            int selectionRow = selection.getRow();
-            Employee selected = table.getItems().get(selectionRow);
-
-            TemplateController.loadEmpDel(selected);
+            TemplateController.loadEmpDel(table.getItems().get(selectionList.get(0).getRow()));
         }
     }
 
@@ -150,7 +142,7 @@ public class EmpTableController {
         }
         catch(IOException ioe){
             ioe.printStackTrace();
-            GUI.launchMessage(2, "Error de interfaz", "No se ha modido cargar la vista seleccionada del programa.\n\n" + ioe.getMessage());
+            GUI.launchMessage(2, "Error de interfaz", "No se ha modido cargar la vista seleccionada.\n\n" + ioe.getMessage());
         }
     }
     

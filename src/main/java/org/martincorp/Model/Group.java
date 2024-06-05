@@ -1,27 +1,29 @@
 package org.martincorp.Model;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-public class Group {
+public class Group{
     //Variables:
     private IntegerProperty Id, ownerId;
     private StringProperty name, owner, creationDate;
+    // private BooleanProperty deleted;
 
     //Builder:
-    public Group(int i, int oi, String n, String o, String d){
+    public Group(int i, int oi, String n, String o, String da/* , boolean de */){
         setId(i);
-
+        setOwnerId(oi);
         setName(n);
         setOwner(o);
-        setCreationDate(d);
+        setCreationDate(da);
+        // setDeleted(de);
     }
 
     //Methods:
-    
-
     public IntegerProperty IdProperty(){
         if(Id == null){
             Id = new SimpleIntegerProperty(this, "Id");
@@ -101,4 +103,20 @@ public class Group {
     public String getCreationDate(){
         return creationDateProperty().getValue();
     }
+
+    /* public BooleanProperty deletedProperty(){
+        if(deleted == null){
+            deleted = new SimpleBooleanProperty(this, "deleted");
+        }
+
+        return deleted;
+    }
+
+    public void setDeleted(boolean d){
+        deletedProperty().set(d);
+    }
+
+    public boolean getDeleted(){
+        return deletedProperty().getValue();
+    } */
 }

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Random;
 
 import javax.sql.rowset.serial.SerialBlob;
+import javax.sql.rowset.serial.SerialClob;
 
 import org.martincorp.Codec.Encrypt;
 import org.martincorp.Interface.GUI;
@@ -67,18 +68,19 @@ public class DBActions {
     private final String GEN_CERT_CHK_EMP = "SELECT COUNT(*) FROM certificate WHERE cert_emp=? AND cert_public_key NOT IN ('empty')";
     private final String GEN_CERT_CHK_GRP = "SELECT COUNT(*) FROM certificate WHERE cert_group=? AND cert_public_key NOT IN ('empty')";
     private final String GROUP_RAW = "SELECT * FROM publicgroup";
-    private final String GROUP_SECURE = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id)";
-    private final String GROUP_BY_ID = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE grp_id = ?";
-    private final String GROUP_ADD = "INSERT INTO publicgroup VALUES(NULL, ?, ?, ?, NULL)";
+    private final String GROUP_SECURE = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE grp_deleted = 0";
+    private final String GROUP_BY_ID = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE grp_id = ? AND grp_deleted = 0";
+    private final String GROUP_ADD = "INSERT INTO publicgroup VALUES(NULL, ?, ?, ?, NULL, NULL)";
+    private final String GROUP_DROP = "UPDATE publicgroup SET grp_deleted = 1 WHERE grp_id = ?";
     private final String GROUP_COUNT = "SELECT COUNT(*) FROM publicgroup";
     private final String GROUP_EMPS = "SELECT COUNT(*) FROM groupuser";
-    private final String GROUP_SEARCH_NAME = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE grp_name LIKE ?";
-    private final String GROUP_SEARCH_OWNER = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname), grp_creationDate AS owner_name FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE CONCAT(emp_fname, ' ', emp_lname) LIKE ?";
-    private final String GROUP_SEARCH_DATE_FULL = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE grp_creationDate LIKE ?";
-    private final String GROUP_SEARCH_DATE_YEAR = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE YEAR(grp_creationDate) = ?";
-    private final String GROUP_SEARCH_DATE_MONTH = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE MONTH(grp_creationDate) = ?";
-    private final String GROUP_SEARCH_DATE_DDMM = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE DAY(grp_creationDate) = ? AND MONTH(grp_creationDate) = ?";
-    private final String GROUP_SEARCH_DATE_MMYY = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE MONTH(grp_creationDate) = ? AND YEAR(grp_creationDate) = ?";
+    private final String GROUP_SEARCH_NAME = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE grp_name LIKE ?  AND grp_deleted = 0";
+    private final String GROUP_SEARCH_OWNER = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname), grp_creationDate AS owner_name FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE CONCAT(emp_fname, ' ', emp_lname) LIKE ? AND grp_deleted = 0";
+    private final String GROUP_SEARCH_DATE_FULL = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE grp_creationDate LIKE ? AND grp_deleted = 0";
+    private final String GROUP_SEARCH_DATE_YEAR = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE YEAR(grp_creationDate) = ? AND grp_deleted = 0";
+    private final String GROUP_SEARCH_DATE_MONTH = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE MONTH(grp_creationDate) = ? AND grp_deleted = 0";
+    private final String GROUP_SEARCH_DATE_DDMM = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE DAY(grp_creationDate) = ? AND MONTH(grp_creationDate) = ? AND grp_deleted = 0";
+    private final String GROUP_SEARCH_DATE_MMYY = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE MONTH(grp_creationDate) = ? AND YEAR(grp_creationDate) = ? AND grp_deleted = 0";
 
     //Builder:
     public DBActions(){
@@ -223,19 +225,17 @@ public class DBActions {
             res.next();
 
             while(res.next()){
-                if(res.getInt(1) != 1){
-                    emps.add(
-                        new Employee(
-                            res.getInt(1),
-                            res.getBoolean(9) ? Online.ONLINE : Online.OFFLINE,
-                            res.getString(2) + " " + res.getString(3),
-                            res.getString(4),
-                            res.getString(5),
-                            res.getString(6),
-                            res.getString(7)
-                        )
-                    );
-                }
+                emps.add(
+                    new Employee(
+                        res.getInt(1),
+                        res.getBoolean(9) ? Online.ONLINE : Online.OFFLINE,
+                        res.getString(2) + " " + res.getString(3),
+                        res.getString(4),
+                        res.getString(5),
+                        res.getString(6),
+                        res.getString(7)
+                    )
+                );
             }
         }
         catch(SQLException sqle){
@@ -490,9 +490,7 @@ public class DBActions {
             ResultSet res = searchSta.executeQuery();
                     
             while (res.next()){
-                if(res.getInt(1) != 1){
-                    emps.add(new Employee(res.getInt(1), res.getBoolean(9) ? Online.ONLINE : Online.OFFLINE, res.getString(2) + " " + res.getString(3), res.getString(4), res.getString(5), res.getString(6), res.getString(7)));
-                }
+                emps.add(new Employee(res.getInt(1), res.getBoolean(9) ? Online.ONLINE : Online.OFFLINE, res.getString(2) + " " + res.getString(3), res.getString(4), res.getString(5), res.getString(6), res.getString(7)));
             }
 
             return emps;
@@ -529,9 +527,7 @@ public class DBActions {
             ResultSet res = searchSta.executeQuery();
             
             while (res.next()){
-                if(res.getInt(1) != 1){
-                    emps.add(new Employee(res.getInt(1), res.getBoolean(9) ? Online.ONLINE : Online.OFFLINE, res.getString(2) + " " + res.getString(3), res.getString(4), res.getString(5), res.getString(6), res.getString(7)));
-                }
+                emps.add(new Employee(res.getInt(1), res.getBoolean(9) ? Online.ONLINE : Online.OFFLINE, res.getString(2) + " " + res.getString(3), res.getString(4), res.getString(5), res.getString(6), res.getString(7)));
             }
 
             return emps;
@@ -574,9 +570,7 @@ public class DBActions {
             ResultSet res = searchSta.executeQuery();
             
             while (res.next()){
-                if(res.getInt(1) != 1){
-                    emps.add(new Employee(res.getInt(1), res.getBoolean(9) ? Online.ONLINE : Online.OFFLINE, res.getString(2) + " " + res.getString(3), res.getString(4), res.getString(5), res.getString(6), res.getString(7)));
-                }
+                emps.add(new Employee(res.getInt(1), res.getBoolean(9) ? Online.ONLINE : Online.OFFLINE, res.getString(2) + " " + res.getString(3), res.getString(4), res.getString(5), res.getString(6), res.getString(7)));
             }
 
             return emps;
@@ -620,9 +614,7 @@ public class DBActions {
             ResultSet res = searchSta.executeQuery();
             
             while (res.next()){
-                if(res.getInt(1) != 1){
-                    emps.add(new Employee(res.getInt(1), res.getBoolean(9) ? Online.ONLINE : Online.OFFLINE, res.getString(2) + " " + res.getString(3), res.getString(4), res.getString(5), res.getString(6), res.getString(7)));
-                }
+                emps.add(new Employee(res.getInt(1), res.getBoolean(9) ? Online.ONLINE : Online.OFFLINE, res.getString(2) + " " + res.getString(3), res.getString(4), res.getString(5), res.getString(6), res.getString(7)));
             }
 
             return emps;
@@ -791,7 +783,7 @@ public class DBActions {
             res.next();
 
             while(res.next()){
-                groups.add(new Group(res.getInt(1), res.getInt(3), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));   
+                groups.add(new Group(res.getInt(1), res.getInt(3), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));
             }
         }
         catch(SQLException sqle){
@@ -814,6 +806,8 @@ public class DBActions {
             ResultSet res = grpSta.executeQuery();
             if(res.next()){
                 grp.setId(res.getInt(1));
+                //DONE: check this, all group queries have to include the owner id (they already do don't they?)
+                grp.setOwnerId(res.getInt(2));
                 grp.setName(res.getString(2));
                 grp.setOwner(res.getString(4) + " (" + res.getInt(3) + ")");
                 grp.setCreationDate(res.getDate(5).toString());
@@ -828,23 +822,57 @@ public class DBActions {
         return grp;
     }
 
-    public boolean newGroup(Group newGrp){
+    public boolean newGroup(Group newGrp, byte[] pass){
         PreparedStatement newSta;
         // INSERT INTO publicgroup VALUES(NULL, ?, ?, ?, NULL)
 
         try{
             newSta = mBridge.conn.prepareStatement(GROUP_ADD);
             newSta.setString(1, newGrp.getName());
-            
+            newSta.setInt(2, newGrp.getOwnerId());
+            newSta.setBlob(3, new SerialBlob(pass));
+
+            if(newSta.executeUpdate() == 1){
+                GUI.launchMessage(3, "Operación completada", "Se ha añadido con éxito el grupo seleccionado.");
+                return true;
+            }
+            else{
+                GUI.launchMessage(2, "Operación fallida", "No se ha podido completar la operación solicitada.");
+                return false;
+            }
+
         }
         catch(SQLException sqle){
-
+            sqle.printStackTrace();
+            GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error al intentar insertar datos.\n\n" + sqle.getMessage());
+            mBridge.checkConnection(false);
         }
 
         return false;
     }
 
     public boolean dropGrp(int grpId){
+        PreparedStatement dropSta;
+
+        try{
+            dropSta = mBridge.conn.prepareStatement(GROUP_DROP);
+            dropSta.setInt(1, grpId);
+            
+            if(dropSta.executeUpdate() == 1){
+                GUI.launchMessage(3, "Operación completada", "Se ha eliminado con éxito el grupo seleccionado.");
+                return true;
+            }
+            else{
+                GUI.launchMessage(2, "Operación fallida", "No se ha podido completar la operación solicitada,\nes posible que el empleado seleccionado ya haya sido eliminado.");
+                return false;
+            }
+        }
+        catch(SQLException sqle){
+            sqle.printStackTrace();
+            GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error al intentar eliminar datos.\n\n" + sqle.getMessage());
+            mBridge.checkConnection(false);
+        }
+        
         return false;
     }
 
@@ -896,9 +924,7 @@ public class DBActions {
             ResultSet res = searchSta.executeQuery();
 
             while (res.next()){
-                if(res.getInt(1) != 1){
-                    grps.add(new Group(res.getInt(1), res.getInt(3), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));
-                }
+                grps.add(new Group(res.getInt(1), res.getInt(3), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));
             }
 
             return grps;
@@ -928,9 +954,7 @@ public class DBActions {
             ResultSet res = searchSta.executeQuery();
 
             while(res.next()){
-                if(res.getInt(1) != 1){
-                    grps.add(new Group(res.getInt(1), res.getInt(3), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));
-                }
+                grps.add(new Group(res.getInt(1), res.getInt(3), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));
             }
 
             return grps;
@@ -975,9 +999,7 @@ public class DBActions {
             ResultSet res = searchSta.executeQuery();
 
             while(res.next()){
-                if(res.getInt(1) != 1){
-                    grps.add(new Group(res.getInt(1), res.getInt(3), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));
-                }
+                grps.add(new Group(res.getInt(1), res.getInt(3), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));
             }
 
             return grps;
@@ -1024,9 +1046,7 @@ public class DBActions {
             ResultSet res = searchSta.executeQuery();
 
             while(res.next()){
-                if(res.getInt(1) != 1){
-                    grps.add(new Group(res.getInt(1), res.getInt(3), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));
-                }
+                grps.add(new Group(res.getInt(1), res.getInt(3), res.getString(2), res.getString(4) + " (" + res.getInt(3) + ")", res.getDate(5).toString()));
             }
 
             return grps;

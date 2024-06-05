@@ -107,6 +107,7 @@ public class EmpSearchController {
         if(employees.size() == 0){
             employees.add(new Employee(0, Online.OFFLINE, "No se ha encontrado", "", "", "ningún empleado", ""));
         }
+        
         //DONE: should i load this in a method, and how do i load the search results? Maybe divide the fetch and population to allow for external population without duplicate code?
         try{
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/empTable.fxml"));

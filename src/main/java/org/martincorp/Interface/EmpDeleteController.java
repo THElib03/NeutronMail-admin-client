@@ -29,6 +29,12 @@ public class EmpDeleteController {
     private int activeId; 
     private DBActions db;
 
+    //Equivalent to main method when the controller is started:
+    @FXML public void initialize(){
+        db = new DBActions();
+        activeId = 0;
+    }
+
     //GUI actions:
       //cancelBut
     @FXML private void cancelClick(){
@@ -44,12 +50,6 @@ public class EmpDeleteController {
         if(e.getCode() == KeyCode.ENTER){
             delete();
         }
-    }
-
-    //Equivalent to main method when the controller is started:
-    @FXML public void initialize(){
-        db = new DBActions();
-        activeId = 0;
     }
 
     //Methods:
