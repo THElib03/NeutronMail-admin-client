@@ -45,7 +45,7 @@ public class EmpAddController {
     @FXML
     public void initialize(){
         db = new DBActions();
-        enc = new Encrypt(4);
+        enc = new Encrypt(2);
 
         ToggleGroup dateGroup = new ToggleGroup();
         tempRadio.setToggleGroup(dateGroup);
@@ -66,11 +66,11 @@ public class EmpAddController {
     }
       //cancelBut
     @FXML private void cancelClick(){
-        TemplateController.loadMain();
+        TemplateController.loadEmpTable();
     }
     @FXML private void cancelEnter(KeyEvent e){
         if(e.getCode() == KeyCode.ENTER){
-            TemplateController.loadMain();
+            TemplateController.loadEmpTable();
         }
     }
       //SaveBut

@@ -25,13 +25,13 @@ import javafx.stage.Stage;
 
 public class GroupSearchController {
     //@FXML objects section:
-    @FXML BorderPane searchRoot;
-    @FXML ChoiceBox<String> searchCombo;
-    @FXML TextField searchText;
-    @FXML Button searchBut;
-    @FXML ChoiceBox<String> searchDateCombo;
-    @FXML DatePicker searchDatePick;
-    @FXML TextField searchDateText;
+    @FXML private BorderPane searchRoot;
+    @FXML private ChoiceBox<String> searchCombo;
+    @FXML private TextField searchText;
+    @FXML private Button searchBut;
+    @FXML private ChoiceBox<String> searchDateCombo;
+    @FXML private DatePicker searchDatePick;
+    @FXML private TextField searchDateText;
 
     //Other Variables:
     private DBActions db;

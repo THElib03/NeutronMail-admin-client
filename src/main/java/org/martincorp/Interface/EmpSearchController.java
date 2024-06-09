@@ -23,18 +23,18 @@ import javafx.stage.Stage;
 
 public class EmpSearchController {
     //@FXML objects section:
-    @FXML BorderPane searchRoot;
-    @FXML ChoiceBox<String> searchCombo;
-    @FXML TextField searchText;
-    @FXML ChoiceBox<String> searchDateCombo;
-    @FXML DatePicker searchDatePick;
-    @FXML TextField searchDateText;
-    @FXML Button searchBut;
+    @FXML private BorderPane searchRoot;
+    @FXML private ChoiceBox<String> searchCombo;
+    @FXML private TextField searchText;
+    @FXML private ChoiceBox<String> searchDateCombo;
+    @FXML private DatePicker searchDatePick;
+    @FXML private TextField searchDateText;
+    @FXML private Button searchBut;
 
     //Other Variables:
     private DBActions db;
     private static Stage window;
-    private static int parent = 0;
+    public static int parent = 0;
 
 
     //Equivalent to main method when the controller is started:

@@ -7,7 +7,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="714.0" prefWidth="1341.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.martincorp.Interface.TemplateController">
+<BorderPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="714.0" prefWidth="1341.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.martincorp.Interface.TemplateController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -50,7 +50,6 @@
           </Menu>
           <Menu mnemonicParsing="false" text="Ayuda">
             <items>
-                  <MenuItem fx:id="settingsItem" mnemonicParsing="false" onAction="#settings" text="Opciones" />
               <MenuItem fx:id="aboutItem" mnemonicParsing="false" onAction="#about" text="Acerca de" />
             </items>
           </Menu>

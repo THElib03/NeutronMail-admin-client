@@ -12,12 +12,12 @@ import javafx.stage.Stage;
 
 public class GroupDeleteController{
     //@FXML objects section:
-    @FXML TextField nameText;
-    @FXML TextField ownerText;
-    @FXML TextField dateText;
-    @FXML TextField passText;
-    @FXML Button cancelBut;
-    @FXML Button deleteBut;
+    @FXML private TextField nameText;
+    @FXML private TextField ownerText;
+    @FXML private TextField dateText;
+    @FXML private TextField passText;
+    @FXML private Button cancelBut;
+    @FXML private Button deleteBut;
 
     //Other variables:
     private Stage window;

@@ -15,14 +15,14 @@ import javafx.stage.Stage;
 
 public class EmpDeleteController {
     //@FXML objects section:
-    @FXML TextField nameText;
-    @FXML TextField aliasText;
-    @FXML TextField emailText;
-    @FXML TextField sDateText;
-    @FXML TextField eDateText;
-    @FXML Label dateInfoText;
-    @FXML Button cancelBut;
-    @FXML Button saveBut;
+    @FXML private TextField nameText;
+    @FXML private  TextField aliasText;
+    @FXML private TextField emailText;
+    @FXML private TextField sDateText;
+    @FXML private TextField eDateText;
+    @FXML private Label dateInfoText;
+    @FXML private Button cancelBut;
+    @FXML private Button saveBut;
 
     //Other variables:
     private Stage window;

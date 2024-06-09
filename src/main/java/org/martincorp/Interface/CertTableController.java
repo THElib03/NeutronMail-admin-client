@@ -18,7 +18,6 @@ import javafx.stage.Stage;
 public class CertTableController {
     //@FXML objects section:
     @FXML private MenuItem contextReboot;
-
     @FXML private TableView<Certificate> table;
     @FXML private TableColumn<Certificate, String> nameCol;
     @FXML private TableColumn<Certificate, Boolean> statusCol;

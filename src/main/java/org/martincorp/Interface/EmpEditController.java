@@ -18,14 +18,14 @@ import javafx.stage.Stage;
 
 public class EmpEditController {
     //@FXML objects section:
-    @FXML TextField nameText;
-    @FXML TextField aliasText;
-    @FXML TextField emailText;
-    @FXML DatePicker sDatePick;
-    @FXML DatePicker eDatePick;
-    @FXML Label dateInfoText;
-    @FXML Button cancelBut;
-    @FXML Button saveBut;
+    @FXML private TextField nameText;
+    @FXML private TextField aliasText;
+    @FXML private TextField emailText;
+    @FXML private DatePicker sDatePick;
+    @FXML private DatePicker eDatePick;
+    @FXML private Label dateInfoText;
+    @FXML private Button cancelBut;
+    @FXML private Button saveBut;
 
     //Other variables:
     private Stage window;

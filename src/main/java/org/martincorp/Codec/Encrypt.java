@@ -1,6 +1,8 @@
 package org.martincorp.Codec;
 
 import java.math.BigInteger;
+import java.security.Key;
+import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -8,6 +10,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.Random;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
@@ -17,9 +21,12 @@ public class Encrypt {
     //Variables:
     private MessageDigest hasher;
     private SecretKeyFactory skf;
+    private KeyGenerator gen;
     private int key_length;
+
     private static final Random RANDOM = new SecureRandom();
     private static final int ITERATIONS = 10000;
+    private static final int KEYSIZE = 4096;
 
 
     //Builder:
@@ -33,33 +40,12 @@ public class Encrypt {
     public Encrypt(int mode){
         try{
             switch(mode){
-                case -1:
-                    //Why are you doing this to yourself?
-                    hasher = MessageDigest.getInstance("SHA-1");
-                    skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-                    key_length = 160;
-                    break;
-                case 0:
-                    hasher = MessageDigest.getInstance("MD5");
-                    skf = SecretKeyFactory.getInstance("PBEWithMD5AndTripleDES");
-                    key_length = 128;
-                    break;
                 case 1:
-                    hasher = MessageDigest.getInstance("SHA-224");
-                    skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA224");
-                    key_length = 224;
-                    break;
-                case 2:
                     hasher = MessageDigest.getInstance("SHA-256");
                     skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
                     key_length = 256;
                     break;
-                case 3:
-                    hasher = MessageDigest.getInstance("SHA-384");
-                    skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA384");
-                    key_length = 384;
-                    break;
-                case 4:
+                case 2:
                     hasher = MessageDigest.getInstance("SHA-512");
                     skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
                     key_length = 512;
@@ -175,5 +161,20 @@ public class Encrypt {
         }
         
         return sb.toString();
+    }
+
+    //AES related methods:
+    public byte[] generateNewKey(){
+        try{
+            gen = KeyGenerator.getInstance("AES");
+            gen.init(KEYSIZE);
+
+            return gen.generateKey().getEncoded();
+        }
+        catch(NoSuchAlgorithmException nsae){
+            nsae.printStackTrace();
+            GUI.launchMessage(2, null, null);
+            return null;
+        }
     }
 }

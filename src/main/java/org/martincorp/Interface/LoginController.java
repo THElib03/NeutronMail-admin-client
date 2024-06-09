@@ -14,10 +14,10 @@ import javafx.stage.Stage;
 
 public class LoginController {
     //@FXML objects section:
-    private @FXML TextField nameText;
-    private @FXML PasswordField passText;
-    private @FXML Button cancelBut;
-    private @FXML Button approveBut;
+    @FXML private TextField nameText;
+    @FXML private PasswordField passText;
+    @FXML private Button cancelBut;
+    @FXML private Button approveBut;
     
     //Other variables section:
     private static Stage window;

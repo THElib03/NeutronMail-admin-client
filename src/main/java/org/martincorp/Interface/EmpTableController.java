@@ -39,9 +39,7 @@ public class EmpTableController {
     private Stage window;
     private DBActions db;
     private int parent = 0;
-
-    private EmpEditController eEmpCont;
-    private EmpAddController dEmpCont;
+    public static GroupAddController aGrpCont;
 
     //Equivalent to main method when the controller is started:
     @FXML public void initialize(){
@@ -133,6 +131,15 @@ public class EmpTableController {
                         eEmpCont.extSetup(table.getItems().get(selectionListEdit.get(0).getRow()));
                     }
 
+                    break;
+                case 3:
+                    ObservableList<TablePosition> selectionListAdd = table.getSelectionModel().getSelectedCells();
+
+                    if(selectionListAdd.size() > 0){
+                        Employee selEmp = table.getItems().get(selectionListAdd.get(0).getRow());
+                        aGrpCont.ownerText.setText(selEmp.getAlias());
+                        aGrpCont.activeOwner = selEmp.getID();
+                    }
                     break;
 
                 default:

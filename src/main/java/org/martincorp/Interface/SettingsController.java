@@ -29,7 +29,6 @@ import javafx.stage.Stage;
 public class SettingsController {
     //FXML objects section:
     @FXML private GridPane root;
-    
     @FXML private ChoiceBox<String> activeCombo;
     @FXML private Button renameBut;
     @FXML private Button loadBut;

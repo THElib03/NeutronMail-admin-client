@@ -62,7 +62,7 @@ public class DBActions {
     private final String ACTI_DROP = "DELETE FROM `active` WHERE act_emp = ?";
     private final String CERTIFICATE = "SELECT * FROM certificate";
     private final String CERT_ADD_EMP = "INSERT INTO certificate VALUES(NULL, ?, NULL, NULL)";
-    private final String CERT_ADD_GROUP = "INSERT INTO certificate VALUES(NULL, NULL, ?, ?, ?)";
+    private final String CERT_ADD_GROUP = "INSERT INTO certificate VALUES(NULL, NULL, ?, ?)";
     private final String EMP_CERT_DROP = "DELETE FROM certificate WHERE cert_emp = ?";
     private final String GEN_CERT_COUNT = "SELECT COUNT(*) FROM certificate WHERE cert_public_key NOT IN ('empty')";
     private final String GEN_CERT_CHK_EMP = "SELECT COUNT(*) FROM certificate WHERE cert_emp=? AND cert_public_key NOT IN ('empty')";
@@ -70,9 +70,10 @@ public class DBActions {
     private final String GROUP_RAW = "SELECT * FROM publicgroup";
     private final String GROUP_SECURE = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE grp_deleted = 0";
     private final String GROUP_BY_ID = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE grp_id = ? AND grp_deleted = 0";
-    private final String GROUP_ADD = "INSERT INTO publicgroup VALUES(NULL, ?, ?, ?, NULL, NULL)";
+    private final String GROUP_ADD = "INSERT INTO publicgroup VALUES(NULL, ?, ?, ?, ?, NULL)";
     private final String GROUP_DROP = "UPDATE publicgroup SET grp_deleted = 1 WHERE grp_id = ?";
     private final String GROUP_COUNT = "SELECT COUNT(*) FROM publicgroup";
+    private final String GROUP_LAST = "SELECT MAX(grp_id) FROM publicgroup";
     private final String GROUP_EMPS = "SELECT COUNT(*) FROM groupuser";
     private final String GROUP_SEARCH_NAME = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE grp_name LIKE ?  AND grp_deleted = 0";
     private final String GROUP_SEARCH_OWNER = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname), grp_creationDate AS owner_name FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE CONCAT(emp_fname, ' ', emp_lname) LIKE ? AND grp_deleted = 0";
@@ -86,7 +87,7 @@ public class DBActions {
     public DBActions(){
         mBridge = new MainBridge();
         lBridge = new LoginBridge();
-        enc = new Encrypt(2);
+        enc = new Encrypt(1);
 
         //Querys declaration:
         EMP_ADD_PASS = "INSERT INTO " + lBridge.getDB() + ".`user` VALUES(NULL, ?, ?, ?)";
@@ -703,10 +704,8 @@ public class DBActions {
     }
 
     public boolean newEmpCert(int emp){
-        PreparedStatement certSta;
-
         try{
-            certSta = mBridge.conn.prepareStatement(CERT_ADD_EMP);
+            PreparedStatement certSta = mBridge.conn.prepareStatement(CERT_ADD_EMP);
             certSta.setInt(1, emp);
 
             if(certSta.executeUpdate() == 1){
@@ -728,7 +727,20 @@ public class DBActions {
     }
 
     public boolean newGrpCert(int grp){
-        return false;
+        try{
+            PreparedStatement certSta = mBridge.conn.prepareStatement(CERT_ADD_GROUP);
+            certSta.setInt(1, grp);
+            certSta.setBlob(2, new SerialBlob(enc.generateNewKey()));
+
+            certSta.executeUpdate();
+            return true;
+        }
+        catch(SQLException sqle){
+            sqle.printStackTrace();
+            GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error al intentar insertar datos.\n\n" + sqle.getMessage());
+            mBridge.checkConnection(false);
+            return false;
+        }
     }
 
     public boolean isGenerated(int id, boolean table){
@@ -824,13 +836,13 @@ public class DBActions {
 
     public boolean newGroup(Group newGrp, byte[] pass){
         PreparedStatement newSta;
-        // INSERT INTO publicgroup VALUES(NULL, ?, ?, ?, NULL)
 
         try{
             newSta = mBridge.conn.prepareStatement(GROUP_ADD);
             newSta.setString(1, newGrp.getName());
-            newSta.setInt(2, newGrp.getOwnerId());
-            newSta.setBlob(3, new SerialBlob(pass));
+            newSta.setBlob(2, new SerialBlob(pass));
+            newSta.setInt(3, newGrp.getOwnerId());
+            newSta.setDate(4, Date.valueOf(LocalDate.now()));
 
             if(newSta.executeUpdate() == 1){
                 GUI.launchMessage(3, "Operación completada", "Se ha añadido con éxito el grupo seleccionado.");
@@ -889,6 +901,25 @@ public class DBActions {
         catch(SQLException sqle){
             sqle.printStackTrace();
             GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error al intentar cargar datos.\n\n" + sqle.getMessage());
+            mBridge.checkConnection(false);
+            return 0;
+        }
+    }
+
+    public int getLastGroup(){
+        try{
+            ResultSet res = mBridge.querier.executeQuery(GROUP_LAST);
+            
+            if(res.next()){
+                return res.getInt(1);
+            }
+            else{
+                return 0;
+            }
+        }
+        catch(SQLException sqle){
+            sqle.printStackTrace();
+            GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error al intentar eliminar datos.\n\n" + sqle.getMessage());
             mBridge.checkConnection(false);
             return 0;
         }

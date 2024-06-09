@@ -24,7 +24,6 @@ public class GroupTableController {
     //@FXML objects section:
     @FXML private MenuItem contextAdd;
     @FXML private MenuItem contextDelete;
-
     @FXML private TableView<Group> table;
     @FXML private TableColumn<Group, Integer> idCol;
     @FXML private TableColumn<Group, String>  nameCol;

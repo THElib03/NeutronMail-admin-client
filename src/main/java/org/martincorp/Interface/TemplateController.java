@@ -42,7 +42,7 @@ public class TemplateController{
     @FXML private MenuItem delGroupItem;
     @FXML private MenuItem certTableItem;
     @FXML private MenuItem certRebItem;
-    @FXML private MenuItem settingsItem;
+    // @FXML private MenuItem settingsItem;
     @FXML private MenuItem aboutItem;
 
     //Other Variables:
@@ -112,9 +112,9 @@ public class TemplateController{
         loadCertReboot();
     }
       //settingsItem
-    @FXML private void settings(){
+    /* @FXML private void settings(){
         launchSettings();
-    }
+    } */
       //aboutItem
     @FXML private void about(){
         launchAbout();
@@ -358,14 +358,21 @@ public class TemplateController{
 
     public static void loadGroupAdd(){
         try{
-            FXMLLoader loader = new FXMLLoader(GUI.class.getResource("/Fxml/grpTable.fxml"));
-            Parent root = loader.load();
+            FXMLLoader addLoader = new FXMLLoader(GUI.class.getResource("/Fxml/grpAdd.fxml"));
+            Parent addRoot = addLoader.load();
+            FXMLLoader schLoader = new FXMLLoader(GUI.class.getResource("/Fxml/empSearch.fxml"));
+            Parent schRoot = schLoader.load();
 
-            GroupAddController aGrpCont = loader.getController();
+            GroupAddController aGrpCont = addLoader.getController();
+            EmpSearchController sEmpCont = schLoader.getController();
+            EmpTableController.aGrpCont = aGrpCont;
             aGrpCont.setStage(window);
+            sEmpCont.setStage(window);
+            sEmpCont.setParent(3);
 
             Platform.runLater( () -> cleanTemplate());
-            Platform.runLater( () -> templateRoot.setCenter(root));
+            Platform.runLater( () -> templateRoot.setLeft(addRoot));
+            Platform.runLater( () -> templateRoot.setRight(schRoot));
         }
         catch(IOException ioe){
             ioe.printStackTrace();
@@ -487,7 +494,7 @@ public class TemplateController{
         }
     }
 
-    public static void launchSettings(){
+    /* public static void launchSettings(){
         try{
             FXMLLoader loader = new FXMLLoader(GUI.class.getResource("/Fxml/settings.fxml"));
             Parent root = loader.load();
@@ -511,9 +518,9 @@ public class TemplateController{
             ioe.printStackTrace();
             GUI.launchMessage(2, "Error de interfaz", "No se ha modido cargar la vista seleccionada del programa.\n\n" + ioe.getMessage());
         }
-    }
+    } */
 
-    /*
+    /**
      * TODO: Not important but create a way for the backButton in the menu to record which where the previous views
      * Maybe an static list in here that gets added and substracted the name or codes of the visited views.
      */

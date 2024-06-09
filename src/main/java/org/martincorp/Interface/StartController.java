@@ -15,8 +15,8 @@ import javafx.scene.layout.BorderPane;
 
 public class StartController{
     //@FXML objects section:
-    private @FXML BorderPane bPane;
-    private @FXML ImageView logoView;
+    @FXML private BorderPane bPane;
+    @FXML private ImageView logoView;
 
     //Other variables section:
     private static Stage window;
