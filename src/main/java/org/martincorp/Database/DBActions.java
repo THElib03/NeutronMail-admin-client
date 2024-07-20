@@ -369,7 +369,7 @@ public class DBActions {
             editSta.setString(1, newEmp.getName().split(" ", 2)[0]);
             editSta.setString(2, newEmp.getName().split(" ", 2)[1]);
             editSta.setDate(3, Date.valueOf(LocalDate.parse(newEmp.getStartDate())));
-            editSta.setDate(4, Date.valueOf(LocalDate.parse(newEmp.getStartDate())));
+            editSta.setDate(4, Date.valueOf(LocalDate.parse(newEmp.getEndDate())));
             editSta.setString(5, newEmp.getAlias());
             editSta.setString(6, newEmp.getMail());
             editSta.setInt(7, empId);
