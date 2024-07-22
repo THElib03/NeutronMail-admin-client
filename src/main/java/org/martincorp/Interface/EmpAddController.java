@@ -106,7 +106,7 @@ public class EmpAddController {
         System.arraycopy(salt, 0, key, 0, salt.length);
         System.arraycopy(hash, 0, key, salt.length, hash.length);
 
-        //TODO: trim al strings with .strip()
+        //DONE: trim al strings with .strip()
         if(db.newEmp(fnameText.getText().strip(), lnameText.getText().strip(), startDatePick.getValue(), endDate, key, aliasText.getText().strip(), emailText.getText().strip())){
             if(db.newEmpCert(db.getLastEmp() - 1) && db.newEmpAct(db.getLastEmp() - 1)){
                 GUI.launchMessage(3, "Operación completada", "Se ha añadido con éxito un nuevo empleado");

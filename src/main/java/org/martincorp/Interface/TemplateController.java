@@ -409,7 +409,7 @@ public class TemplateController{
 
     public static void loadGroupEdit(Group edtGrp){
         try{
-            FXMLLoader edtLoader = new FXMLLoader(GUI.class.getResource("/Fxml/groupEdit.fxml"));
+            FXMLLoader edtLoader = new FXMLLoader(GUI.class.getResource("/Fxml/grpEdit.fxml"));
             Parent edtRoot = edtLoader.load();
             FXMLLoader schLoader = new FXMLLoader(GUI.class.getResource("/Fxml/grpSearch.fxml"));
             Parent schRoot = schLoader.load();
@@ -430,7 +430,7 @@ public class TemplateController{
         }
         catch(IOException ioe){
             ioe.printStackTrace();
-            GUI.launchMessage(2, "Error de interfaz", "No se ha modido cargar la vista seleccionada del programa.\n\n" + ioe.getMessage());
+            GUI.launchMessage(2, "Error de interfaz", "No se ha podido cargar la vista seleccionada del programa.\n\n" + ioe.getMessage());
         }
     }
 

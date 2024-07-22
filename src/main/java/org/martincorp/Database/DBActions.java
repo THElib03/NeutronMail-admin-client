@@ -61,7 +61,7 @@ public class DBActions {
     private final String ACTI_ADD = "INSERT INTO `active` VALUES(?, 0)";
     private final String ACTI_DROP = "DELETE FROM `active` WHERE act_emp = ?";
     private final String CERTIFICATE = "SELECT * FROM certificate";
-    private final String CERT_ADD_EMP = "INSERT INTO certificate VALUES(NULL, ?, NULL, NULL)";
+    private final String CERT_ADD_EMP = "INSERT INTO certificate VALUES(NULL, ?, NULL, 'empty')";
     private final String CERT_ADD_GROUP = "INSERT INTO certificate VALUES(NULL, NULL, ?, ?)";
     private final String EMP_CERT_DROP = "DELETE FROM certificate WHERE cert_emp = ?";
     private final String GEN_CERT_COUNT = "SELECT COUNT(*) FROM certificate WHERE cert_public_key NOT IN ('empty')";
@@ -69,9 +69,12 @@ public class DBActions {
     private final String GEN_CERT_CHK_GRP = "SELECT COUNT(*) FROM certificate WHERE cert_group=? AND cert_public_key NOT IN ('empty')";
     private final String GROUP_RAW = "SELECT * FROM publicgroup";
     private final String GROUP_SECURE = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE grp_deleted = 0";
+    private final String GROUP_PASS = "SELECT grp_pass FROM publicgroup WHERE grp_id = ? AND grp_deleted = 0";
     private final String GROUP_BY_ID = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE grp_id = ? AND grp_deleted = 0";
     private final String GROUP_ADD = "INSERT INTO publicgroup VALUES(NULL, ?, ?, ?, ?, NULL)";
     private final String GROUP_DROP = "UPDATE publicgroup SET grp_deleted = 1 WHERE grp_id = ?";
+    private final String GROUP_EDIT = "UPDATE publicgroup SET grp_name = ? WHERE grp_id = ?";
+    private final String GROUP_EDIT_PASS = "UPDATE publicgroup SET grp_name = ?, grp_pass = ? WHERE grp_id = ?";
     private final String GROUP_COUNT = "SELECT COUNT(*) FROM publicgroup";
     private final String GROUP_LAST = "SELECT MAX(grp_id) FROM publicgroup";
     private final String GROUP_EMPS = "SELECT COUNT(*) FROM groupuser";
@@ -126,15 +129,13 @@ public class DBActions {
     }
 
     public boolean checkUser(String name, String pass){
-        boolean done = false;
-        PreparedStatement loginSta;
         byte[] salt = null;
         byte[] hash = null;
 
         if(lBridge.connected){ 
             if(!name.equals("") && !pass.equals("")){
                 try{
-                    loginSta = lBridge.conn.prepareStatement(COMPANY);
+                    PreparedStatement loginSta = lBridge.conn.prepareStatement(COMPANY);
                     loginSta.setString(1, name);
                     ResultSet res = loginSta.executeQuery();
                     
@@ -146,48 +147,92 @@ public class DBActions {
                             loginClose();
 
                             if(!lBridge.connected){
-                                done = true;
-
                                 Thread t = new Thread( () -> {                                    
                                     MainBridge loggedUser = new MainBridge(name, new String(wall, StandardCharsets.UTF_8));
                                 });
-
                                 t.run();
+                                
+                                return true;
                             }
                             else{
-                                done = true;
                                 GUI.launchMessage(2, "Error de base de datos.", "La conexión de inicio de sesión no se ha cerrado correctamente.\nSe recomienda cerrar la aplicación lo antes posible para evitar una brecha de seguridad.");
+                                return true;
                             }
                         }
                         else{
-                            done = false;
                             GUI.launchMessage(5, "", "La contraseña introducida no es correcta,\npor favor inténtelo de nuevo.");
+                            return false;
                         }
                     }
                     else{
-                        done = false;
                         GUI.launchMessage(5, "", "No se ha encontrado ninguna compañía con las credenciales indicadas.");
+                        return false;
                     }
                 }
                 catch(SQLException sqle){
                     sqle.printStackTrace();
-                    done = false;
                     GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error inesperado durante la comunicación\ncon la base de datos. Inténtelo de nuevo en unos instantes:\n\n" + sqle.getMessage());
                     lBridge.checkConnection(true);
                     mBridge.checkConnection(false);
+                    return false;
                 }
             }
             else{
-                done = false;
                 GUI.launchMessage(5, "Datos incorrectos", "Uno de los campos obligatorios está vacío, por favor inténtelo de nuevo.");
+                return false;
             }
         }
         else{
             lBridge.startConnection();
             GUI.retryDatabase("", true);
+            return false;
+        }
+    }
+
+    /**
+     * Checks the indicated group password compared to the combination given by the user.
+     * @since 1.0
+     * @param id id of the group to check
+     * @param pass password given by the user to be compared
+     * @return true if the given password is correct, false if not or any problem arises
+     */
+    public boolean checkGrp(int id, String pass){
+        byte[] salt = null;
+        byte[] hash = null;
+
+        if(pass.strip().equals("")){
+            GUI.launchMessage(5, "Dato incorrecto", "La contraseña debe contener al menos un (1) carácter");
+            return false;
         }
 
-        return done;
+        try{
+            PreparedStatement chkSta = mBridge.conn.prepareStatement(GROUP_PASS);
+            chkSta.setInt(1, id);
+            ResultSet res = chkSta.executeQuery();
+
+            if(res.next()){
+                byte[] wall = res.getBytes(1);
+                salt = Arrays.copyOfRange(wall, 0, 32);
+                hash = Arrays.copyOfRange(wall, 32, 96);
+                if(enc.checkPassword(pass.toCharArray(), salt, hash)){
+                    return true;
+                }
+                else{
+                    GUI.launchMessage(5, "", "La contraseña introducida no es correcta,\npor favor inténtelo de nuevo.");
+                    return false;
+                }
+            }
+            else{
+                GUI.launchMessage(5, "Error de base de datos", "No se ha encontrado el grupo indicado.");
+                return false;
+            }
+        }
+        catch(SQLException sqle){
+            sqle.printStackTrace();
+            GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error al intentar cargar datos.\n\n" + sqle.getMessage());
+            mBridge.checkConnection(false);
+            return false;
+        }
     }
 
     public int getCompanyId(String comp){
@@ -361,10 +406,8 @@ public class DBActions {
      * @return true if the edit is successful, false if any problem arises
      */
     public boolean editEmp(int empId, Employee newEmp){
-        PreparedStatement editSta;
-
         try{
-            editSta = mBridge.conn.prepareStatement(EMP_EDIT);
+            PreparedStatement editSta = mBridge.conn.prepareStatement(EMP_EDIT);
 
             editSta.setString(1, newEmp.getName().split(" ", 2)[0]);
             editSta.setString(2, newEmp.getName().split(" ", 2)[1]);
@@ -888,8 +931,30 @@ public class DBActions {
         return false;
     }
 
-    public boolean editGrp(int grpId, Group newGrp){
-        return false;
+    public boolean editGrp(Group newGrp, byte[] newPass){
+        PreparedStatement edtSta;
+
+        try{
+            if(newPass == null){
+                edtSta = mBridge.conn.prepareStatement(GROUP_EDIT);
+            }
+            else{
+                edtSta = mBridge.conn.prepareStatement(GROUP_EDIT_PASS);
+                edtSta.setBlob(2, new SerialBlob(newPass));
+            }
+
+            edtSta.setString(1, newGrp.getName());
+            edtSta.setInt(3, newGrp.getId());
+            edtSta.executeUpdate();
+
+            return true;
+        }
+        catch(SQLException sqle){
+            sqle.printStackTrace();
+            GUI.launchMessage(2, "Error de base de datos", "Ha ocurrido un error al intentar cargar datos.\n\n" + sqle.getMessage());
+            mBridge.checkConnection(false);
+            return false;
+        }
     }
 
     public int getGroupCount(){

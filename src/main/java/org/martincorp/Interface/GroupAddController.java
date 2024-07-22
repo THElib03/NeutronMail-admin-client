@@ -72,7 +72,7 @@ public class GroupAddController{
             return;
         }
         else if(nameText.getText().strip().equals("") || ownerText.getText().strip().equals("")){
-            GUI.launchMessage(5, "Advertencia", "Uno de los campos requeridos está vacío");
+            GUI.launchMessage(5, "Advertencia", "Uno de los campos requeridos está vacío.");
             return;
         }
 
