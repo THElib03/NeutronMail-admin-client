@@ -15,8 +15,9 @@
    <contextMenu>
       <ContextMenu>
          <items>
-            <MenuItem fx:id="contextAdd" mnemonicParsing="false" text="Nuevo" />
-            <MenuItem fx:id="contextDelete" mnemonicParsing="false" text="Eliminar" />
+            <MenuItem fx:id="contextAdd" mnemonicParsing="false" onAction="#contextAdd" text="Nuevo" />
+            <MenuItem fx:id="contextEdit" mnemonicParsing="false" onAction="#contextEdit" text="Modificar" />
+            <MenuItem fx:id="contextDelete" mnemonicParsing="false" onAction="#contextDelete" text="Eliminar" />
          </items>
       </ContextMenu>
    </contextMenu>

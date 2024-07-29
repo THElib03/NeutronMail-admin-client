@@ -1,5 +1,7 @@
 package org.martincorp.Interface;
 
+import java.time.LocalDate;
+
 import org.martincorp.Database.DBActions;
 import org.martincorp.Model.Group;
 
@@ -51,7 +53,7 @@ public class GroupDeleteController{
     @FXML private void delete(){
         if(activeId != 0){
             if(db.dropGrp(activeId)){
-                TemplateController.loadGroupTable();
+                cleanText();
             }
         }
     }
@@ -61,6 +63,13 @@ public class GroupDeleteController{
         nameText.setText(grp.getName());
         ownerText.setText(grp.getOwner());
         dateText.setText(grp.getCreationDate());
+    }
+
+    private void cleanText(){
+        nameText.setText("");
+        ownerText.setText("");
+        dateText.setText("");
+        passText.setText("");
     }
 
     public void setStage(Stage w){

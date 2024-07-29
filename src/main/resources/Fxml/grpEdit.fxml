@@ -131,7 +131,7 @@
             <Insets right="45.0" />
          </GridPane.margin>
       </Button>
-      <Button fx:id="deleteBut" mnemonicParsing="false" onKeyPressed="#editEnter" onMouseClicked="#editGrp" prefWidth="85.0" text="Añadir" GridPane.columnIndex="1" GridPane.rowIndex="2">
+      <Button fx:id="deleteBut" mnemonicParsing="false" onKeyPressed="#editEnter" onMouseClicked="#editGrp" prefWidth="85.0" text="Modificar" GridPane.columnIndex="1" GridPane.rowIndex="2">
          <font>
             <Font name="Segoe UI" size="14.0" />
          </font>

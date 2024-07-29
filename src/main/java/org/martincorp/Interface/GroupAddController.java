@@ -84,7 +84,6 @@ public class GroupAddController{
 
         if(db.newGroup(new Group(0, activeOwner, nameText.getText().strip(), "", LocalDate.now().toString()), key)){
             if(db.newGrpCert(activeOwner)){
-                GUI.launchMessage(3, "Éxito", "Se ha añadido el grupo " + nameText.getText().strip() + " correctamente.");
                 cleanText();
             }
             else{

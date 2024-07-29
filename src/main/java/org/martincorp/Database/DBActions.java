@@ -36,7 +36,7 @@ public class DBActions {
     private final String COMPANY = "SELECT * FROM company WHERE com_name LIKE ?";
     private final String EMPLOYEE = "SELECT * FROM employee JOIN `active` ON (employee.emp_id=`active`.act_emp)";
     private final String EMP_BY_ID = "SELECT * FROM employee WHERE emp_id = ?";
-    private final String EMP_COUNT = "SELECT COUNT(*) FROM employee";
+    private final String EMP_COUNT = "SELECT COUNT(*) FROM employee JOIN `active` ON (employee.emp_id=`active`.act_emp)";
     private final String EMP_ADD = "INSERT INTO employee VALUES(NULL, ?, ?, ?, ?, ?, ?)";
     private final String EMP_ADD_PASS;
     private final String EMP_DROP;
@@ -71,11 +71,11 @@ public class DBActions {
     private final String GROUP_SECURE = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE grp_deleted = 0";
     private final String GROUP_PASS = "SELECT grp_pass FROM publicgroup WHERE grp_id = ? AND grp_deleted = 0";
     private final String GROUP_BY_ID = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE grp_id = ? AND grp_deleted = 0";
-    private final String GROUP_ADD = "INSERT INTO publicgroup VALUES(NULL, ?, ?, ?, ?, NULL)";
-    private final String GROUP_DROP = "UPDATE publicgroup SET grp_deleted = 1 WHERE grp_id = ?";
+    private final String GROUP_ADD = "INSERT INTO publicgroup (grp_name, grp_pass, grp_owner, grp_creationDate) VALUES(?, ?, ?, ?);";
+    private final String GROUP_DROP = "UPDATE publicgroup SET grp_pass = 'empty',  grp_deleted = 1 WHERE grp_id = ?";
     private final String GROUP_EDIT = "UPDATE publicgroup SET grp_name = ? WHERE grp_id = ?";
     private final String GROUP_EDIT_PASS = "UPDATE publicgroup SET grp_name = ?, grp_pass = ? WHERE grp_id = ?";
-    private final String GROUP_COUNT = "SELECT COUNT(*) FROM publicgroup";
+    private final String GROUP_COUNT = "SELECT COUNT(*) FROM publicgroup WHERE grp_deleted = 0";
     private final String GROUP_LAST = "SELECT MAX(grp_id) FROM publicgroup";
     private final String GROUP_EMPS = "SELECT COUNT(*) FROM groupuser";
     private final String GROUP_SEARCH_NAME = "SELECT grp_id, grp_name, grp_owner, CONCAT(emp_fname, ' ', emp_lname) AS 'owner_name', grp_creationDate FROM publicgroup JOIN employee ON (publicgroup.grp_owner=employee.emp_id) WHERE grp_name LIKE ?  AND grp_deleted = 0";
@@ -418,7 +418,7 @@ public class DBActions {
             editSta.setInt(7, empId);
 
             if(editSta.executeUpdate() == 1){
-                GUI.launchMessage(3, "Operación completada", "Se ha modifiado con éxito al empleado seleccionado.");
+                GUI.launchMessage(3, "Operación completada", "Se ha modificado con éxito al empleado seleccionado.");
                 return true;
             }
             else{
@@ -830,7 +830,7 @@ public class DBActions {
         }
     }
 
-    public List<Group> getGroups() {
+    public List<Group> getGroups(){
         List<Group> groups = new ArrayList<Group>();
 
         try{
@@ -918,7 +918,7 @@ public class DBActions {
                 return true;
             }
             else{
-                GUI.launchMessage(2, "Operación fallida", "No se ha podido completar la operación solicitada,\nes posible que el empleado seleccionado ya haya sido eliminado.");
+                GUI.launchMessage(2, "Operación fallida", "No se ha podido completar la operación solicitada,\nes posible que el grupo seleccionado ya haya sido eliminado.");
                 return false;
             }
         }
@@ -932,22 +932,28 @@ public class DBActions {
     }
 
     public boolean editGrp(Group newGrp, byte[] newPass){
-        PreparedStatement edtSta;
+        PreparedStatement editSta;
 
         try{
             if(newPass == null){
-                edtSta = mBridge.conn.prepareStatement(GROUP_EDIT);
+                editSta = mBridge.conn.prepareStatement(GROUP_EDIT);
             }
             else{
-                edtSta = mBridge.conn.prepareStatement(GROUP_EDIT_PASS);
-                edtSta.setBlob(2, new SerialBlob(newPass));
+                editSta = mBridge.conn.prepareStatement(GROUP_EDIT_PASS);
+                editSta.setBlob(2, new SerialBlob(newPass));
             }
 
-            edtSta.setString(1, newGrp.getName());
-            edtSta.setInt(3, newGrp.getId());
-            edtSta.executeUpdate();
-
-            return true;
+            editSta.setString(1, newGrp.getName());
+            editSta.setInt(3, newGrp.getId());
+            
+            if(editSta.executeUpdate() == 1){
+                GUI.launchMessage(3, "Operación completada", "Se ha modificado con éxito el grupo seleccionado.");
+                return true;
+            }
+            else{
+                GUI.launchMessage(2, "Operación fallida", "No se ha podido completar la operación solicitada,\nes posible que no se haya encontrado el grupo seleccionado.");
+                return false;
+            }
         }
         catch(SQLException sqle){
             sqle.printStackTrace();

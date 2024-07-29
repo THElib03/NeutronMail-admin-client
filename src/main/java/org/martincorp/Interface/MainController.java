@@ -40,9 +40,9 @@ public class MainController {
         certView.setImage(new Image(imgURL.toExternalForm()));
 
         //Setting up the scen labels:
-        emplText.setText(String.valueOf(db.getEmpCount()));
+        emplText.setText(String.valueOf(db.getEmpCount() - 1));
         actEmpText.setText(String.valueOf(db.getActiveEmp()));
-        actGroupText.setText(String.valueOf(db.getGroupCount()));
+        actGroupText.setText(String.valueOf(db.getGroupCount() - 1));
         empGroupText.setText(String.valueOf(db.getEmpInGroup()));
         genCertText.setText(String.valueOf(db.getGeneratedCert()));
     }

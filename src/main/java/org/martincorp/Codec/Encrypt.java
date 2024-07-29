@@ -26,7 +26,7 @@ public class Encrypt {
 
     private static final Random RANDOM = new SecureRandom();
     private static final int ITERATIONS = 10000;
-    private static final int KEYSIZE = 4096;
+    private static final int KEYSIZE = 256;
 
 
     //Builder:
@@ -167,6 +167,7 @@ public class Encrypt {
     public byte[] generateNewKey(){
         try{
             gen = KeyGenerator.getInstance("AES");
+            //Wasn't keysize able to be bigger? look  in emp_mail
             gen.init(KEYSIZE);
 
             return gen.generateKey().getEncoded();

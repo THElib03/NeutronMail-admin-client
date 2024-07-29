@@ -44,7 +44,7 @@
             <Font name="Segoe UI" size="14.0" />
          </font>
       </Label>
-      <TextField fx:id="nameText" prefHeight="28.0">
+      <TextField fx:id="nameText" onKeyPressed="#saveEnter" prefHeight="28.0">
          <GridPane.margin>
             <Insets left="63.0" right="63.0" top="90.0" />
          </GridPane.margin>
@@ -92,7 +92,7 @@
             <Font name="Segoe UI" size="14.0" />
          </font>
       </Label>
-      <PasswordField fx:id="pass1Text" prefHeight="28.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+      <PasswordField fx:id="pass1Text" onKeyPressed="#saveEnter" prefHeight="28.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
          <GridPane.margin>
             <Insets bottom="45.0" left="63.0" right="63.0" />
          </GridPane.margin>
@@ -105,7 +105,7 @@
             <Insets top="45.0" />
          </GridPane.margin>
       </Label>
-      <PasswordField fx:id="pass2Text" prefHeight="28.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1">
+      <PasswordField fx:id="pass2Text" onKeyPressed="#saveEnter" prefHeight="28.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1">
          <GridPane.margin>
             <Insets left="63.0" right="63.0" top="135.0" />
          </GridPane.margin>

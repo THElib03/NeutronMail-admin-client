@@ -38,7 +38,7 @@ public class GroupEditController{
     public void initialize(){
         db = new DBActions();
         enc = new Encrypt(2);
-        //TODO: implement edition, db interaction, check if the context menu works, gn.
+        //DONE: implement edition, db interaction, check if the context menu works, gn.
         //TODO: if you fail again, add a button for searching and changing the owner.
         passHint.setText("Deje los campos en blanco si no\ndesea cambiar la contraseña.");;
     }
@@ -67,8 +67,8 @@ public class GroupEditController{
             return;
         }
         else if(pass1Text.getText().strip().equals("") && pass2Text.getText().strip().equals("")){
-            if(db.editGrp(new Group(activeId, 0, nameText.getText().strip(), ownerText.getText().strip(), null), null)){
-                GUI.launchMessage(2, "TONTO", "QUE ERES MUY TONTO");
+            if(db.editGrp(new Group(activeId, 0, nameText.getText().strip(), ownerText.getText().strip(), null), pass2Text.getText().strip().getBytes())){
+                cleanText();
             }
             return;
         }
@@ -93,6 +93,7 @@ public class GroupEditController{
 
                 db.editGrp(new Group(activeId, 0, nameText.getText().strip(), null, null), key);
                 //TODO: debug
+                //TODO: I  FORGOT WHERE THE FUCK TO PUT THE MESSAGES, CHECK AND ADD ONE TO THIS AND MAYBE GRP DELETE.
             }
         }
     }
@@ -102,6 +103,14 @@ public class GroupEditController{
         nameText.setText(grp.getName());
         ownerText.setText(grp.getOwner());
         datePick.setValue(LocalDate.parse(grp.getCreationDate()));
+    }
+
+    public void cleanText(){
+        nameText.setText("");
+        ownerText.setText("");
+        datePick.setValue(null);
+        pass1Text.setText("");
+        pass2Text.setText("");
     }
 
     public void setStage(Stage w){
